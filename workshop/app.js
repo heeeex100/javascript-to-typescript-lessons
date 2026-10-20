@@ -66,7 +66,7 @@ function updateProgress() {
     const lab = labs.find(lab => lab.id === button.dataset.id);
     button.hidden = Boolean(lab.advanced) !== Boolean(current.advanced);
     button.setAttribute("aria-current", button.dataset.id === current.id ? "step" : "false");
-    button.querySelector(".lesson-name").textContent = (State.isPassed(state, lab) ? "✓ " : "") + lab.title;
+    button.querySelector(".lesson-name").textContent = (State.isPassed(state, lab) ? "✓ " : "") + (lab.navTitle ?? lab.title);
   }
 }
 function select(id, historyMode = "push") {
@@ -79,7 +79,10 @@ function select(id, historyMode = "push") {
   lastTrack[current.advanced ? "advanced" : "basic"] = current.id;
   $("eyebrow").textContent = `${current.advanced ? "进阶挑战 · " : ""}第 ${current.id} 关 / ${current.lang === "ts" ? "用 TypeScript 检查自己的代码" : current.lang === "dom" ? "让代码改变页面" : "在具体问题里学习 JavaScript"}`;
   $("title").textContent = current.title;
-  $("goal").textContent = current.goal;
+  document.title = `${current.id} · ${current.navTitle} | 动手学 JS → TS`;
+  $("goal").textContent = current.learningGoal;
+  $("final-title").textContent = "综合大练习：" + current.finalTitle;
+  $("final-goal").textContent = current.goal;
   globalThis.WorkshopLessonSteps.show($("foundations-content"),
     globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href, {
       onStep({ body, index, count, next }) {
@@ -206,7 +209,7 @@ async function openLesson(url) {
 for (const lesson of labs) {
   const button = document.createElement("button"); button.type = "button"; button.dataset.id = lesson.id;
   const number = document.createElement("span"); number.textContent = lesson.id;
-  const title = document.createElement("span"); title.className = "lesson-name"; title.textContent = lesson.title;
+  const title = document.createElement("span"); title.className = "lesson-name"; title.textContent = lesson.navTitle ?? lesson.title;
   button.append(number, title); button.addEventListener("click", () => select(lesson.id));
   $("lessons").append(button);
 }

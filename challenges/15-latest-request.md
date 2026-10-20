@@ -1,4 +1,4 @@
-# 15 · 修复搜索结果被旧请求覆盖
+# 15 · 请求竞态：让最新搜索结果生效
 
 本关按“讲解一段 → 就地小练习”学习，最后完成综合大练习。
 
@@ -139,7 +139,7 @@ function errorText(requestId,latestId) { return requestId===latestId ? "请求�
 </details>
 <!-- foundations:end -->
 
-## 本关综合大练习
+## 综合大练习：修复搜索结果被旧请求覆盖
 
 **先搜 J，再搜 JS；即使 J 最后返回，页面仍保留 JS 的结果。**
 

@@ -1,4 +1,4 @@
-# 17 · 导入脏数据时一次列出所有错误
+# 17 · 运行时校验：检查外部输入
 
 本关按“讲解一段 → 就地小练习”学习，最后完成综合大练习。
 
@@ -140,7 +140,7 @@ function issuePath(index: number, field: string): string { return `[${index}].${
 </details>
 <!-- foundations:end -->
 
-## 本关综合大练习
+## 综合大练习：导入脏数据时一次列出所有错误
 
 **把外部 unknown 校验成 Task[]；同时告诉用户每个错误在哪个字段。**
 

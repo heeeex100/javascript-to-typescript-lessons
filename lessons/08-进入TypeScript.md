@@ -1,4 +1,4 @@
-# 08 · 综合大练习：有类型约束的分钟输入工具
+# 08 · TypeScript 入门：用类型检查发现错误
 
 本关按“讲解一段 → 就地小练习”学习，最后完成综合大练习。
 
@@ -143,7 +143,7 @@ function read(text: string): number { return Number(text); }
 </details>
 <!-- foundations:end -->
 
-## 本关综合大练习
+## 综合大练习：有类型约束的分钟输入工具
 
 **将文字校验和数字计算接到 TS 参数约定上，返回真实数字。**
 
