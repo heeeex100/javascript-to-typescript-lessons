@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.DS_Store
+*.tsbuildinfo
+.playwright-mcp/
+exports/
+# 学习者独立实验和本机配置
+practice/concepts/
+/concept.mjs
+/concept.ts
+/concept.js
+/concept-output/
+.env
+.env.*
+!.env.example
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,28 @@
+{
+  "name": "javascript-to-typescript-lessons",
+  "version": "1.0.0",
+  "private": true,
+  "description": "中文动手式 JavaScript → TypeScript 课程：19 关概念、实验、挑战与自动反馈",
+  "engines": { "node": ">=24" },
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "tsc",
+    "demo": "npm run build && node dist/project/main.js",
+    "verify": "npm run check:concepts && npm run verify:concepts && npm run build && node checks/verify.mjs && npm run test:workshop",
+    "concept": "node scripts/concept.mjs",
+    "verify:concepts": "node checks/concepts.mjs",
+    "sync:concepts": "node scripts/sync-foundations.mjs",
+    "check:concepts": "node scripts/sync-foundations.mjs --check",
+    "exercise:js": "node checks/js-exercises.mjs",
+    "exercise:ts": "npm run build && node checks/ts-exercises.mjs",
+    "lab": "node scripts/lab.mjs",
+    "workshop": "node scripts/serve-workshop.mjs",
+    "verify:labs": "node checks/practice.mjs",
+    "verify:advanced": "node checks/practice.mjs --advanced",
+    "test:workshop": "node --test checks/workshop.test.mjs checks/static-server.test.mjs checks/lab-runner.test.mjs checks/concept-runner.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

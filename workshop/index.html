@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>动手学 · JavaScript → TypeScript</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./labs.js"></script>
+  <script defer src="./advanced-labs.js"></script>
+  <script defer src="./foundations.js"></script>
+  <script defer src="./state.js"></script>
+  <script defer src="./runner.js"></script>
+  <script defer src="./reader.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <aside>
+    <a class="brand" href="../README.md">动手学 <span>JS → TS</span></a>
+    <p class="nav-caption">一关，只解决一个小问题</p>
+    <div class="track-controls" aria-label="选择学习阶段">
+      <button id="basic-track" type="button">基础 00–12</button>
+      <button id="advanced-track" type="button">进阶 13–18</button>
+    </div>
+    <nav id="lessons" aria-label="选择动手任务"></nav>
+    <p id="progress" class="quiet"></p>
+    <details class="backup-tools">
+      <summary>备份与迁移</summary>
+      <p class="quiet">导出草稿与网页通关记录，可带到另一台电脑导入。</p>
+      <button id="export-backup" type="button">导出学习备份</button>
+      <button id="import-backup" type="button">导入学习备份</button>
+      <input id="backup-file" type="file" accept=".json,application/json" hidden>
+      <p id="backup-feedback" class="quiet" role="status" aria-live="polite"></p>
+    </details>
+    <p class="quiet">先预测 → 运行 → 改一点 → 再验证</p>
+  </aside>
+  <main>
+    <header>
+      <p id="eyebrow" class="eyebrow"></p>
+      <h1 id="title"></h1>
+      <p id="goal" class="goal"></p>
+    </header>
+    <details id="foundations-panel" class="foundations-panel" open>
+      <summary>动手前先认识 · 本关基础概念</summary>
+      <p class="quiet">先读概念，再展开小例子预测输出、改一个地方。读完可收起，继续下面的挑战。</p>
+      <p class="quiet">在项目目录的终端体验本关小例子：<code id="concept-command"></code>。加 --prepare 创建独立实验文件，修改后加 --local 运行；07 的 HTML 请用浏览器打开。</p>
+      <div id="foundations-content"></div>
+      <a id="foundations-index" href="../reference/概念导航.md">查看整套概念路线 →</a>
+    </details>
+    <div class="workspace">
+      <section class="editor-panel" aria-label="代码实验">
+        <div class="panel-heading"><label id="editor-label" for="code">你的实验代码</label><span id="language"></span></div>
+        <div class="code-editor"><pre id="line-numbers" aria-hidden="true">1</pre><textarea id="code" maxlength="100000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="draft-note"></textarea></div>
+        <p id="draft-note" class="quiet"></p>
+        <div id="js-controls" class="controls">
+          <button id="run" class="primary">运行代码</button>
+          <button id="check">检查挑战</button>
+          <button id="stop" disabled>停止</button>
+          <button id="download-code">下载代码</button>
+          <button id="reset" class="subtle">恢复本关起点</button>
+        </div>
+        <div id="local-controls" hidden>
+          <p id="local-note"></p>
+          <pre id="command"></pre>
+          <a id="file-link">查看练习文件</a>
+        </div>
+        <div class="output-heading"><h2>运行结果</h2><span id="status" role="status" aria-live="polite">等你第一次运行</span></div>
+        <pre id="output" tabindex="0" aria-label="程序输出">先猜猜输出，再点击运行。</pre>
+      </section>
+      <section class="guide-panel" aria-label="动手步骤">
+        <h2>每次只改一点</h2>
+        <ol id="steps"></ol>
+        <details id="requirements-panel" hidden><summary>验收要求（先读再写）</summary><ul id="requirements"></ul></details>
+        <details><summary>卡住了？看一个提示</summary><p id="hint"></p></details>
+        <details id="concept-panel"><summary>刚才发生了什么</summary><p id="concept"></p></details>
+        <div class="extension"><h2>做一个自己的版本</h2><p id="extension"></p><p class="quiet">这是扩展实验，不计入本关验收。</p></div>
+        <a id="lesson-link">打开完整动手指导 →</a>
+      </section>
+    </div>
+    <footer><span>把每次改动造成的变化说清楚，就有收获。</span><div class="page-navigation"><button id="previous">← 上一关</button><button id="next">下一关 →</button></div></footer>
+  </main>
+  <dialog id="import-dialog" aria-labelledby="import-title">
+    <h2 id="import-title">确认导入学习备份</h2>
+    <p id="import-summary"></p>
+    <label><input id="overwrite-drafts" type="checkbox">替换本机有冲突的草稿（默认保留本机版本）</label>
+    <p class="quiet">备份只包含网页草稿与验收记录，不会修改 practice 文件，也不会执行其中的代码。</p>
+    <div class="controls"><button id="confirm-import" class="primary">导入</button><button id="cancel-import">取消</button></div>
+  </dialog>
+  <dialog id="lesson-dialog" aria-labelledby="reader-title">
+    <div class="reader-heading"><h2 id="reader-title">动手指导</h2><button id="close-reader">关闭指导</button></div>
+    <div id="reader-content" tabindex="0"></div>
+  </dialog>
+</body>
+</html>

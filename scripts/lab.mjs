@@ -1,0 +1,82 @@
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import "../workshop/labs.js";
+import "../workshop/advanced-labs.js";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const args = process.argv.slice(2);
+const selections = args.filter(arg => /^\d{1,2}$/.test(arg));
+const invalidArgs = args.some(arg => !/^\d{1,2}$/.test(arg) && !["--check", "--answer", "--starter"].includes(arg));
+const id = (selections[0] ?? "").padStart(2, "0");
+const lesson = globalThis.learningLabs.find(lab => lab.id === id);
+const checking = args.includes("--check");
+const answer = args.includes("--answer");
+if (!lesson || selections.length !== 1 || invalidArgs || (args.includes("--answer") && args.includes("--starter"))) {
+  console.log("用法：npm run lab -- 01 [--check]\n基础 00～12，进阶 13～18；例如 npm run lab -- 13 --check");
+  process.exit(args.length === 0 ? 0 : 1);
+}
+if (lesson.lang === "dom") {
+  console.log("第 07 关：浏览器打开 practice/07-dom/index.html，编辑同目录 app.js 后刷新。\n验收：初始剩余 1，添加后 2，完成一项后 1。");
+  process.exit(0);
+}
+const sourcePath = answer ? `answers/practice/${lesson.id}.${lesson.lang}` : lesson.file;
+const source = args.includes("--starter") ? lesson.starter : readFileSync(join(root, sourcePath), "utf8");
+const stage = realpathSync(mkdtempSync(join(tmpdir(), "js-ts-lesson-")));
+const checks = checking ? lesson.checks : "";
+const marker = `__LESSON_COMPLETE_${randomUUID()}__`;
+const helper = lesson.lang === "ts"
+  ? '\nfunction check(condition: boolean, message: string): void { if (!condition) throw new Error("挑战提示：" + message); }\n'
+  : '\nfunction check(condition, message) { if (!condition) throw new Error("挑战提示：" + message); }\n';
+
+console.log(`\n第 ${lesson.id} 关 · ${lesson.title}\n读取：${sourcePath}`);
+let status = 0;
+try {
+  writeFileSync(join(stage, "package.json"), '{"type":"module"}');
+  const entry = join(stage, `main.${lesson.lang}`);
+  // 保持学习代码在文件开头，错误行号能对应到本关文件。
+  writeFileSync(entry, source + helper + checks + (checking ? `\nconsole.log(${JSON.stringify(marker)});\n` : ""));
+  if (lesson.lang === "ts") {
+    writeFileSync(join(stage, "tsconfig.json"), JSON.stringify({
+      compilerOptions: {
+        target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", moduleDetection: "force",
+        strict: true, noUncheckedIndexedAccess: true, noEmitOnError: true,
+        lib: ["ES2022", "DOM"], types: [], outDir: "out",
+      }, files: ["main.ts"],
+    }));
+    const compile = spawnSync(process.execPath, [join(root, "node_modules/typescript/bin/tsc"), "-p", stage, "--pretty", "false"], { encoding: "utf8", timeout: 15000 });
+    // 输出路径换为学习者实际编辑的文件；附加验收代码单独说明。
+    const compilerOutput = (compile.stdout ?? "") + (compile.stderr ?? "");
+    process.stdout.write(compilerOutput.replaceAll(join(stage, "main.ts"), sourcePath));
+    if (compile.error || compile.status !== 0) {
+      console.log("类型检查未通过，尚未运行。请修改上面的 practice 文件，再试一次。\n若报错行号超过源码长度，那是附加验收在检查你的类型约定。");
+      if (compile.error) console.log(compile.error.message);
+      status = 1;
+    }
+  }
+  if (status === 0) {
+    const runnable = lesson.lang === "ts" ? join(stage, "out/main.js") : entry;
+    const run = spawnSync(process.execPath, [runnable], { encoding: "utf8", timeout: 4000, maxBuffer: 1024 * 1024 });
+    const output = run.stdout ?? "";
+    process.stdout.write(output.replace(marker + "\n", "").replace(marker + "\r\n", ""));
+    if (run.status !== 0 || run.error) {
+      const error = (run.stderr ?? "").replaceAll(pathToFileURL(runnable).href, sourcePath).replaceAll(runnable, sourcePath);
+      process.stderr.write(error);
+      if (run.error) console.error("运行已停止：可能是无限循环、等待过长或输出过多。", run.error.message);
+      status = 1;
+    } else if (checking && !output.includes(marker)) {
+      console.error("代码提前退出，验收尚未完成；本次不能标记通过。");
+      status = 1;
+    } else if (checking) {
+      console.log("挑战通过：本关验收全部成立。");
+    } else {
+      console.log(`\n再试：npm run lab -- ${lesson.id} --check`);
+    }
+  }
+} finally {
+  rmSync(stage, { recursive: true, force: true });
+}
+process.exitCode = status;
