@@ -9,6 +9,7 @@ import "../workshop/advanced-labs.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const drillMode = process.argv[2] === "--drill";
+if (!drillMode) await import("../workshop/finals.js");
 if (drillMode) await import("../workshop/drills.js");
 const args = process.argv.slice(drillMode ? 3 : 2);
 const pattern = drillMode ? /^\d{2}-\d{2}$/ : /^\d{1,2}$/;
@@ -31,10 +32,10 @@ if (drillMode && args.includes("--prepare")) {
   process.exit(0);
 }
 if (lesson.lang === "dom") {
-  console.log("第 07 关：浏览器打开 practice/07-dom/index.html，编辑同目录 app.js 后刷新。\n验收：初始剩余 1，添加后 2，完成一项后 1。");
+  console.log(`第 07 关综合大练习：浏览器打开 ${lesson.page}，编辑 ${lesson.file} 后刷新。\n验收：添加、完成、删除后数量同步；空白输入不增加任务。`);
   process.exit(0);
 }
-const sourcePath = drillMode ? (answer ? `小练习 ${id} 的内置参考` : lesson.file) : answer ? `answers/practice/${lesson.id}.${lesson.lang}` : lesson.file;
+const sourcePath = drillMode ? (answer ? `小练习 ${id} 的内置参考` : lesson.file) : answer ? lesson.answerFile ?? `answers/practice/${lesson.id}.${lesson.lang}` : lesson.file;
 const source = drillMode && answer ? lesson.answer : args.includes("--starter") ? lesson.starter :
   drillMode && !existsSync(join(root, sourcePath)) ? lesson.starter : readFileSync(join(root, sourcePath), "utf8");
 const stage = realpathSync(mkdtempSync(join(tmpdir(), "js-ts-lesson-")));

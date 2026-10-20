@@ -19,10 +19,10 @@ verify:drills 另行检查 60 道小题的起点应失败、参考写法应通�
 
 ## 修改概念与题目
 
-- 概念原稿：reference/foundations/00.md 到 18.md。用五个 `####` 标题划分学习步骤，先举具体例子再解释。第一个 js/ts/html 代码块由 concept 命令独立运行；后续代码用于对照实验。修改后运行 `npm run sync:concepts`，提交自动更新的讲义和 workshop/foundations.js。
+- 概念原稿：reference/foundations/00.md 到 18.md。每个 `####` 标题是一段讲解，结尾用 `<!-- drill:02-01 -->` 指定就地小题；与 drills.js 中 teachingStep 对应。每段必须且只能对应一道小题，同步检查会核对关系。第一个 js/ts/html 代码块由 concept 命令独立运行。修改后运行 `npm run sync:concepts`。
 - 小题原稿：workshop/drills.js。每题包含单一目标、起点、检查、提示、参考写法与解释；讲义中的小题由同步脚本生成。小题草稿使用独立浏览器存储和 practice/steps 文件，不覆盖主挑战。
 - 如果示例的预期输出有意改变，同时更新 checks/concepts.mjs 中对应预期，并确认正文中的解释相符。
-- 基础题目数据：workshop/labs.js；进阶题目：workshop/advanced-labs.js。调整验收时同步题目说明、起始文件与参考解法。
+- 原基础题目数据：workshop/labs.js；新的基础综合题由 workshop/finals.js 覆盖，文件位于 practice/finals 与 answers/finals。进阶综合题沿用 workshop/advanced-labs.js 的完整合同。调整验收时同步题目说明、脚手架与参考解法。
 - 学习者的 `practice/concepts/` 是独立实验，不提交 Git，也不进入课程压缩包。不要为了让测试通过而替学习者填写 practice 或 exercises。
 - `.cmd` 文件保持 CRLF，其他文本使用 LF；.gitattributes 会在检出时处理。
 

@@ -1,6 +1,7 @@
 const labs = globalThis.learningLabs;
 const State = globalThis.WorkshopState;
 const $ = id => document.getElementById(id);
+const smallStepsPanel = $("small-steps");
 const storageKey = "js-ts-workshop-v1";
 let canSave = true;
 let stored = {};
@@ -80,16 +81,23 @@ function select(id, historyMode = "push") {
   $("title").textContent = current.title;
   $("goal").textContent = current.goal;
   globalThis.WorkshopLessonSteps.show($("foundations-content"),
-    globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href);
-  globalThis.WorkshopMini.select(current.id);
+    globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href, {
+      onStep({ body, index, count, next }) {
+        body.append(smallStepsPanel);
+        globalThis.WorkshopMini.select(current.id, index + 1, next);
+        $("drill-next").textContent = index === count - 1 ? "去做综合大练习 →" : "继续下一段讲解 →";
+      },
+      onComplete() { $("final-exercise").scrollIntoView({ behavior: "smooth" }); $("final-exercise").focus({ preventScroll: true }); },
+    });
   $("foundations-panel").open = true;
   $("concept-command").textContent = `npm run concept -- ${current.id}${current.lang === "dom" ? " --prepare" : ""}`;
   $("language").textContent = current.lang === "ts" ? "TypeScript · 本地编译" : current.lang === "dom" ? "浏览器 DOM" : "JavaScript · 可编辑";
   const interactive = current.lang === "js";
   $("code").readOnly = !interactive;
-  $("code").value = interactive ? state.drafts[current.id] ?? current.starter : current.starter;
+  const draft = state.drafts[current.id];
+  $("code").value = interactive ? (draft === current.legacyStarter ? current.starter : draft ?? current.starter) : current.starter;
   $("code").scrollTop = 0;
-  $("editor-label").textContent = interactive ? "你的实验代码" : "起始代码预览 · 请编辑本地文件";
+  $("editor-label").textContent = interactive ? "你的综合大练习代码" : "综合题起点预览 · 请编辑本地文件";
   $("js-controls").hidden = !interactive;
   $("local-controls").hidden = interactive;
   $("steps").replaceChildren(...current.steps.map(text => {
@@ -97,16 +105,16 @@ function select(id, historyMode = "push") {
   }));
   for (const key of ["hint", "concept", "extension"]) $(key).textContent = current[key];
   for (const details of document.querySelectorAll(".guide-panel details")) details.open = false;
-  $("requirements-panel").hidden = !current.advanced;
-  $("requirements-panel").open = Boolean(current.advanced);
+  $("requirements-panel").hidden = false;
+  $("final-examples").textContent = current.examples ? "试一试这些输入：" + current.examples : "完成后按以上要求换不同输入验证，再点击验收。";
   $("requirements").replaceChildren(...(current.requirements ?? []).map(text => {
     const item = document.createElement("li"); item.textContent = text; return item;
   }));
   $("lesson-link").href = "../" + current.lesson;
-  $("file-link").href = "../" + (current.lang === "dom" ? "practice/07-dom/index.html" : current.file);
+  $("file-link").href = "../" + (current.lang === "dom" ? current.page : current.file);
   $("file-link").textContent = current.lang === "dom" ? "打开要修改的任务页面 →" : "查看本关练习文件 →";
   $("local-note").textContent = current.lang === "dom" ? "打开任务页面，在编辑器修改 app.js，保存后刷新观察剩余数量。" : "在编辑器打开练习文件，用终端里的真实 tsc 检查。网页不模拟 TypeScript 编译。";
-  $("command").textContent = current.lang === "dom" ? "practice/07-dom/app.js" : `npm run lab -- ${current.id}\nnpm run lab -- ${current.id} --check`;
+  $("command").textContent = current.lang === "dom" ? current.file : `npm run lab -- ${current.id}\nnpm run lab -- ${current.id} --check`;
   $("output").textContent = interactive ? "先猜猜输出，再点击运行。" : "本关的结果在浏览器任务页面或终端中查看。";
   setStatus(interactive ? (State.isPassed(state, current) ? "此草稿上次检查通过" : "等你运行") : "切换到实际操作");
   $("next").disabled = current === labs.at(-1);

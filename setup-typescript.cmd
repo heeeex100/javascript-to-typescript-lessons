@@ -12,7 +12,7 @@ echo Checking the reference lessons. Your practice files will not be changed.
 call npm.cmd run verify:labs
 if errorlevel 1 goto failed
 echo.
-echo Setup complete. You can now edit practice\08.ts and run:
+echo Setup complete. You can now edit practice\finals\08.ts and run:
 echo npm.cmd run lab -- 08 --check
 pause
 exit /b 0

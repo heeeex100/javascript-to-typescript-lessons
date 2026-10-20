@@ -32,7 +32,7 @@ globalThis.WorkshopLessonSteps = (() => {
   }
   return {
     stop,
-    show(container, markdown, base) {
+    show(container, markdown, base, { onStep, onComplete } = {}) {
       stop();
       const parts = markdown.split(/\n(?=#### )/);
       const intro = parts.shift();
@@ -47,11 +47,14 @@ globalThis.WorkshopLessonSteps = (() => {
       const render = () => {
         stop();
         status.textContent = `${index + 1} / ${parts.length}`;
-        previous.disabled = index === 0; next.disabled = index === parts.length - 1;
+        previous.disabled = index === 0;
+        next.textContent = index === parts.length - 1 ? "去做综合大练习 →" : "下一段讲解 →";
         body.replaceChildren(WorkshopReader.render(parts[index], base)); addRuns(body);
+        onStep?.({ body, index, count: parts.length, next: advance });
       };
+      const advance = () => { if (index === parts.length - 1) onComplete?.(); else { index++; render(); } };
       previous.onclick = () => { index--; render(); };
-      next.onclick = () => { index++; render(); };
+      next.onclick = advance;
       navigation.append(previous, status, next);
       container.replaceChildren(heading, navigation, body); render();
     },

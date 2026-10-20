@@ -1,4 +1,4 @@
-// 每次只练一个动作；网页、终端和讲义使用同一组题目。
+// 每段讲解后的就地练习；teachingStep 对应本关的第几段。
 globalThis.learningDrills = [
   {
     "id": "00-01",
@@ -11,7 +11,8 @@ globalThis.learningDrills = [
     "hint": "保留 const learner = 和引号，只修改引号中的字。",
     "explanation": "名字 learner 用来取值；引号中的“小林”是存下的文字。",
     "lang": "js",
-    "file": "practice/steps/00-01.js"
+    "file": "practice/steps/00-01.js",
+    "teachingStep": 1
   },
   {
     "id": "00-02",
@@ -24,7 +25,8 @@ globalThis.learningDrills = [
     "hint": "想让计算机算数时，10 + 5 外面需要引号吗？",
     "explanation": "带引号时存下的是六个字符；去掉引号后才执行加法。",
     "lang": "js",
-    "file": "practice/steps/00-02.js"
+    "file": "practice/steps/00-02.js",
+    "teachingStep": 2
   },
   {
     "id": "00-03",
@@ -37,7 +39,8 @@ globalThis.learningDrills = [
     "hint": "反引号是 `，不是单引号；${learner} 会读取 learner。",
     "explanation": "普通引号中的变量名只是文字；模板中的占位位置会换成变量的值。",
     "lang": "js",
-    "file": "practice/steps/00-03.js"
+    "file": "practice/steps/00-03.js",
+    "teachingStep": 3
   },
   {
     "id": "01-01",
@@ -50,7 +53,8 @@ globalThis.learningDrills = [
     "hint": "Number(...) 接收一个值，返回转换后的数字。",
     "explanation": "input 仍然是文字；转换产生新值，并不会自动改掉 input。",
     "lang": "js",
-    "file": "practice/steps/01-01.js"
+    "file": "practice/steps/01-01.js",
+    "teachingStep": 1
   },
   {
     "id": "01-02",
@@ -63,7 +67,8 @@ globalThis.learningDrills = [
     "hint": "先单独想 Number(input) 是多少。",
     "explanation": "两个数字用 + 相加，字符串与数字用 + 会发生拼接。",
     "lang": "js",
-    "file": "practice/steps/01-02.js"
+    "file": "practice/steps/01-02.js",
+    "teachingStep": 2
   },
   {
     "id": "01-03",
@@ -76,7 +81,8 @@ globalThis.learningDrills = [
     "hint": "Number.isFinite(value) 会问：这是一个有限的数字吗？",
     "explanation": "typeof NaN 仍是 number；只问类型不足以确定能否正常计时。",
     "lang": "js",
-    "file": "practice/steps/01-03.js"
+    "file": "practice/steps/01-03.js",
+    "teachingStep": 3
   },
   {
     "id": "02-01",
@@ -89,7 +95,8 @@ globalThis.learningDrills = [
     "hint": "右边先读旧 total，再加 3，最后把结果写回左边 total。",
     "explanation": "等号右边的 total 是旧值；左边是用来保存新值的地方。",
     "lang": "js",
-    "file": "practice/steps/02-01.js"
+    "file": "practice/steps/02-01.js",
+    "teachingStep": 1
   },
   {
     "id": "02-02",
@@ -102,7 +109,8 @@ globalThis.learningDrills = [
     "hint": "先在纸上写：旧总数 3 + 新数字 5 = 新总数 8。",
     "explanation": "累加就是保留已有总数，再把这次的数字加进去。",
     "lang": "js",
-    "file": "practice/steps/02-02.js"
+    "file": "practice/steps/02-02.js",
+    "teachingStep": 2
   },
   {
     "id": "02-03",
@@ -115,7 +123,8 @@ globalThis.learningDrills = [
     "hint": "每次循环的 number 都不同；在花括号里面用 total = total + number。",
     "explanation": "循环帮你重复同一行加法，每次读取数组里的下一个数。",
     "lang": "js",
-    "file": "practice/steps/02-03.js"
+    "file": "practice/steps/02-03.js",
+    "teachingStep": 3
   },
   {
     "id": "02-04",
@@ -128,7 +137,8 @@ globalThis.learningDrills = [
     "hint": "大于或等于写成 >=。",
     "explanation": ">= 25 表示 25 本身和比它大的数字都符合要求。",
     "lang": "js",
-    "file": "practice/steps/02-04.js"
+    "file": "practice/steps/02-04.js",
+    "teachingStep": 4
   },
   {
     "id": "02-05",
@@ -141,7 +151,8 @@ globalThis.learningDrills = [
     "hint": "循环决定每个数都来看一次；if 决定这个数要不要加。",
     "explanation": "不是停止循环，而是当前不满足条件的数不参与加法。",
     "lang": "js",
-    "file": "practice/steps/02-05.js"
+    "file": "practice/steps/02-05.js",
+    "teachingStep": 5
   },
   {
     "id": "02-06",
@@ -154,7 +165,8 @@ globalThis.learningDrills = [
     "hint": "把前一题的 total 初始化、循环和 if 搬进函数，最后返回 total。",
     "explanation": "不同输入都正确，才说明写下了计算方法，而不只是猜中一组答案。",
     "lang": "js",
-    "file": "practice/steps/02-06.js"
+    "file": "practice/steps/02-06.js",
+    "teachingStep": 6
   },
   {
     "id": "03-01",
@@ -167,7 +179,8 @@ globalThis.learningDrills = [
     "hint": "把 console.log(...) 改成 return 后接计算结果。",
     "explanation": "return 后面的值会出现在函数调用所在的位置。",
     "lang": "js",
-    "file": "practice/steps/03-01.js"
+    "file": "practice/steps/03-01.js",
+    "teachingStep": 1
   },
   {
     "id": "03-02",
@@ -180,7 +193,8 @@ globalThis.learningDrills = [
     "hint": "在函数内部读 name 就能拿到这一次传进来的名字。",
     "explanation": "形参 name 可以理解为本次调用接收名字的入口。",
     "lang": "js",
-    "file": "practice/steps/03-02.js"
+    "file": "practice/steps/03-02.js",
+    "teachingStep": 2
   },
   {
     "id": "03-03",
@@ -193,7 +207,8 @@ globalThis.learningDrills = [
     "hint": "函数接收到的是已经算出的 7。",
     "explanation": "一个函数的返回值可以继续参加下一步计算。",
     "lang": "js",
-    "file": "practice/steps/03-03.js"
+    "file": "practice/steps/03-03.js",
+    "teachingStep": 3
   },
   {
     "id": "04-01",
@@ -206,7 +221,8 @@ globalThis.learningDrills = [
     "hint": "点号后面写你要读取的属性名。",
     "explanation": "对象把相关数据放在一起，点号帮助你取其中一项。",
     "lang": "js",
-    "file": "practice/steps/04-01.js"
+    "file": "practice/steps/04-01.js",
+    "teachingStep": 1
   },
   {
     "id": "04-02",
@@ -219,7 +235,8 @@ globalThis.learningDrills = [
     "hint": "!false 是 true，所以 !task.done 能保留未完成任务。",
     "explanation": "filter 回调返回 true 的项被放进新数组，false 的项被跳过。",
     "lang": "js",
-    "file": "practice/steps/04-02.js"
+    "file": "practice/steps/04-02.js",
+    "teachingStep": 2
   },
   {
     "id": "04-03",
@@ -232,7 +249,8 @@ globalThis.learningDrills = [
     "hint": "map 需要一段说明“这一项变成什么”的函数。",
     "explanation": "map 不负责选人，只负责把每项转换成你返回的值。",
     "lang": "js",
-    "file": "practice/steps/04-03.js"
+    "file": "practice/steps/04-03.js",
+    "teachingStep": 3
   },
   {
     "id": "05-01",
@@ -245,7 +263,8 @@ globalThis.learningDrills = [
     "hint": "JSON.parse(text) 会读取符合 JSON 格式的文本。",
     "explanation": "字符串看起来像数组，也仍然是字符串；解析才会得到数组值。",
     "lang": "js",
-    "file": "practice/steps/05-01.js"
+    "file": "practice/steps/05-01.js",
+    "teachingStep": 1
   },
   {
     "id": "05-02",
@@ -258,7 +277,8 @@ globalThis.learningDrills = [
     "hint": "catch 只会在 try 内发生抛错时执行。",
     "explanation": "try/catch 为失败准备另一条路，但不会自动检查解析后的数据类型。",
     "lang": "js",
-    "file": "practice/steps/05-02.js"
+    "file": "practice/steps/05-02.js",
+    "teachingStep": 2
   },
   {
     "id": "05-03",
@@ -271,7 +291,8 @@ globalThis.learningDrills = [
     "hint": "Array.isArray(value) 回答“这个值是数组吗”。",
     "explanation": "格式合法和内容符合要求是两次不同的检查。",
     "lang": "js",
-    "file": "practice/steps/05-03.js"
+    "file": "practice/steps/05-03.js",
+    "teachingStep": 3
   },
   {
     "id": "06-01",
@@ -284,7 +305,8 @@ globalThis.learningDrills = [
     "hint": "await 放在 Promise 前，而不是变量名或 console.log 后面。",
     "explanation": "Promise 表示未来结果；await 后拿到成功交付的值。",
     "lang": "js",
-    "file": "practice/steps/06-01.js"
+    "file": "practice/steps/06-01.js",
+    "teachingStep": 1
   },
   {
     "id": "06-02",
@@ -297,7 +319,8 @@ globalThis.learningDrills = [
     "hint": "(await a) 的结果是 4，(await b) 的结果是 5。",
     "explanation": "等待语法可以出现在表达式中，算术仍然需要真实数字。",
     "lang": "js",
-    "file": "practice/steps/06-02.js"
+    "file": "practice/steps/06-02.js",
+    "teachingStep": 2
   },
   {
     "id": "06-03",
@@ -310,7 +333,8 @@ globalThis.learningDrills = [
     "hint": "这题不用修好网络，只需在失败路径更新文字。",
     "explanation": "await 遇到失败会跳到 catch；成功路径之后的代码不会替你处理失败。",
     "lang": "js",
-    "file": "practice/steps/06-03.js"
+    "file": "practice/steps/06-03.js",
+    "teachingStep": 3
   },
   {
     "id": "07-01",
@@ -323,7 +347,8 @@ globalThis.learningDrills = [
     "hint": "模板字符串里的 ${count} 读本次传入的数。",
     "explanation": "先把要显示的文字算对，下一步才写进页面。",
     "lang": "js",
-    "file": "practice/steps/07-01.js"
+    "file": "practice/steps/07-01.js",
+    "teachingStep": 1
   },
   {
     "id": "07-02",
@@ -336,7 +361,8 @@ globalThis.learningDrills = [
     "hint": "回想第 04 关 filter 的判断。",
     "explanation": "总任务数和未完成数量是不同的值，页面需要的是后者。",
     "lang": "js",
-    "file": "practice/steps/07-02.js"
+    "file": "practice/steps/07-02.js",
+    "teachingStep": 2
   },
   {
     "id": "07-03",
@@ -349,7 +375,8 @@ globalThis.learningDrills = [
     "hint": "?: 可以按条件选择两个值；也可以写 if/else。",
     "explanation": "字符串不会追踪对象变化，DOM 的文字同样需要主动更新。",
     "lang": "js",
-    "file": "practice/steps/07-03.js"
+    "file": "practice/steps/07-03.js",
+    "teachingStep": 3
   },
   {
     "id": "08-01",
@@ -362,7 +389,8 @@ globalThis.learningDrills = [
     "hint": "类型注解不转换数据；Number(text) 才转换。",
     "explanation": "编译器指出输入不合约定后，要修正实际值。",
     "lang": "ts",
-    "file": "practice/steps/08-01.ts"
+    "file": "practice/steps/08-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "08-02",
@@ -375,7 +403,8 @@ globalThis.learningDrills = [
     "hint": "参数名后面写 : number。",
     "explanation": "参数类型约束调用者；返回类型约束函数交出的结果。",
     "lang": "ts",
-    "file": "practice/steps/08-02.ts"
+    "file": "practice/steps/08-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "08-03",
@@ -388,7 +417,8 @@ globalThis.learningDrills = [
     "hint": "改函数体，不要把返回类型改成 any。",
     "explanation": "注解说明承诺，函数体必须兑现承诺。",
     "lang": "ts",
-    "file": "practice/steps/08-03.ts"
+    "file": "practice/steps/08-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "09-01",
@@ -401,7 +431,8 @@ globalThis.learningDrills = [
     "hint": "?? 在左边为 undefined 或 null 时选择右边。",
     "explanation": "可选意味着可能没提供；读取后要照顾这种情况。",
     "lang": "ts",
-    "file": "practice/steps/09-01.ts"
+    "file": "practice/steps/09-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "09-02",
@@ -414,7 +445,8 @@ globalThis.learningDrills = [
     "hint": "可选链 ?. 在缺失时停下来。",
     "explanation": "undefined 没有 trim 方法；?. 使缺失分支有明确结果。",
     "lang": "ts",
-    "file": "practice/steps/09-02.ts"
+    "file": "practice/steps/09-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "09-03",
@@ -427,7 +459,8 @@ globalThis.learningDrills = [
     "hint": "|| 会在空字符串时采用右边默认值。",
     "explanation": "运算符要按需求选：本题特意把空文本和缺失都当作无备注。",
     "lang": "ts",
-    "file": "practice/steps/09-03.ts"
+    "file": "practice/steps/09-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "10-01",
@@ -440,7 +473,8 @@ globalThis.learningDrills = [
     "hint": "unknown 表示还没确定拿到什么。",
     "explanation": "检查之后，编译器才有依据允许字符串方法。",
     "lang": "ts",
-    "file": "practice/steps/10-01.ts"
+    "file": "practice/steps/10-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "10-02",
@@ -453,7 +487,8 @@ globalThis.learningDrills = [
     "hint": "if (result.ok) 或三元表达式都可以。",
     "explanation": "标签把成功字段和失败字段区分开。",
     "lang": "ts",
-    "file": "practice/steps/10-02.ts"
+    "file": "practice/steps/10-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "10-03",
@@ -466,7 +501,8 @@ globalThis.learningDrills = [
     "hint": "&& 右侧只会在左侧成立后执行。",
     "explanation": "类型检查与业务检查各解决一层问题。",
     "lang": "ts",
-    "file": "practice/steps/10-03.ts"
+    "file": "practice/steps/10-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "11-01",
@@ -479,7 +515,8 @@ globalThis.learningDrills = [
     "hint": "参数是 T，返回也写 T；函数体返回 value。",
     "explanation": "T 记录这次调用的输入类型，返回值沿用它。",
     "lang": "ts",
-    "file": "practice/steps/11-01.ts"
+    "file": "practice/steps/11-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "11-02",
@@ -492,7 +529,8 @@ globalThis.learningDrills = [
     "hint": "返回值可能是两种类型，用 | 连接。",
     "explanation": "类型签名应该把可能没结果这件事告诉调用者。",
     "lang": "ts",
-    "file": "practice/steps/11-02.ts"
+    "file": "practice/steps/11-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "11-03",
@@ -505,7 +543,8 @@ globalThis.learningDrills = [
     "hint": "extends { title: string } 写在 T 后面。",
     "explanation": "约束告诉编译器：并非任意类型，只收具有这个属性的类型。",
     "lang": "ts",
-    "file": "practice/steps/11-03.ts"
+    "file": "practice/steps/11-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "12-01",
@@ -518,7 +557,8 @@ globalThis.learningDrills = [
     "hint": "filter 生成新数组；splice 会改旧数组。",
     "explanation": "需要同时验证新结果正确和旧数据仍在。",
     "lang": "ts",
-    "file": "practice/steps/12-01.ts"
+    "file": "practice/steps/12-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "12-02",
@@ -531,7 +571,8 @@ globalThis.learningDrills = [
     "hint": "目标不存在时，每一项都应符合 id !== target。",
     "explanation": "没有找到是正常分支，不能把 -1 当作有效删除位置。",
     "lang": "ts",
-    "file": "practice/steps/12-02.ts"
+    "file": "practice/steps/12-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "12-03",
@@ -544,7 +585,8 @@ globalThis.learningDrills = [
     "hint": "对象展开 ...before 可以带上旧字段，再指定新 done。",
     "explanation": "保留旧数据要照顾对象本身，不能只换一个变量名。",
     "lang": "ts",
-    "file": "practice/steps/12-03.ts"
+    "file": "practice/steps/12-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "13-01",
@@ -557,7 +599,8 @@ globalThis.learningDrills = [
     "hint": "先 [...values]，再 .sort((a,b)=>a-b)。",
     "explanation": "排序规则和是否改原数据是两件要分别决定的事。",
     "lang": "js",
-    "file": "practice/steps/13-01.js"
+    "file": "practice/steps/13-01.js",
+    "teachingStep": 1
   },
   {
     "id": "13-02",
@@ -570,7 +613,8 @@ globalThis.learningDrills = [
     "hint": "slice 的第二个参数是结束位置，不是取几条。",
     "explanation": "页码从 1 开始，数组位置从 0 开始，所以需要减 1。",
     "lang": "js",
-    "file": "practice/steps/13-02.js"
+    "file": "practice/steps/13-02.js",
+    "teachingStep": 2
   },
   {
     "id": "13-03",
@@ -583,7 +627,8 @@ globalThis.learningDrills = [
     "hint": "分页前的 items 才包含全部匹配结果。",
     "explanation": "两个长度回答两个不同问题：这一页有多少，全部有多少。",
     "lang": "js",
-    "file": "practice/steps/13-03.js"
+    "file": "practice/steps/13-03.js",
+    "teachingStep": 3
   },
   {
     "id": "14-01",
@@ -596,7 +641,8 @@ globalThis.learningDrills = [
     "hint": "把 let value=0 移到返回函数的外面，仍放在 createCounter 里面。",
     "explanation": "返回的函数记得外层那份 value，这个现象叫闭包。",
     "lang": "js",
-    "file": "practice/steps/14-01.js"
+    "file": "practice/steps/14-01.js",
+    "teachingStep": 1
   },
   {
     "id": "14-02",
@@ -609,7 +655,8 @@ globalThis.learningDrills = [
     "hint": "最后一项可用 at(-1)。",
     "explanation": "后加入的先取出，符合最近一次操作先撤销的顺序。",
     "lang": "js",
-    "file": "practice/steps/14-02.js"
+    "file": "practice/steps/14-02.js",
+    "teachingStep": 2
   },
   {
     "id": "14-03",
@@ -622,7 +669,8 @@ globalThis.learningDrills = [
     "hint": "新建结果里的 future 改为 []。",
     "explanation": "B→D 是新路线，旧路线里的 C 不能作为 D 的下一步重做。",
     "lang": "js",
-    "file": "practice/steps/14-03.js"
+    "file": "practice/steps/14-03.js",
+    "teachingStep": 3
   },
   {
     "id": "15-01",
@@ -635,7 +683,8 @@ globalThis.learningDrills = [
     "hint": "参照第 14 关：要记住的状态放在外层。",
     "explanation": "编号表示一次调用的身份，比关键词更能区分重复请求。",
     "lang": "js",
-    "file": "practice/steps/15-01.js"
+    "file": "practice/steps/15-01.js",
+    "teachingStep": 1
   },
   {
     "id": "15-02",
@@ -648,7 +697,8 @@ globalThis.learningDrills = [
     "hint": "问的是是不是最新发起的那一次。",
     "explanation": "完成得晚不代表内容更新，要看发起时的身份。",
     "lang": "js",
-    "file": "practice/steps/15-02.js"
+    "file": "practice/steps/15-02.js",
+    "teachingStep": 2
   },
   {
     "id": "15-03",
@@ -661,7 +711,8 @@ globalThis.learningDrills = [
     "hint": "把上一题的相等判断用到失败分支。",
     "explanation": "最新请求规则要同时应用到成功和失败结果。",
     "lang": "js",
-    "file": "practice/steps/15-03.js"
+    "file": "practice/steps/15-03.js",
+    "teachingStep": 3
   },
   {
     "id": "16-01",
@@ -674,7 +725,8 @@ globalThis.learningDrills = [
     "hint": "移除把函数立即执行的那对末尾括号。",
     "explanation": "排队要保存还没做的动作，不能保存已经启动的结果凭证。",
     "lang": "js",
-    "file": "practice/steps/16-01.js"
+    "file": "practice/steps/16-01.js",
+    "teachingStep": 1
   },
   {
     "id": "16-02",
@@ -687,7 +739,8 @@ globalThis.learningDrills = [
     "hint": "try 同时包住调用 task 和 await 等待。",
     "explanation": "某项失败被记录为数据后，调度器才有机会继续其他项。",
     "lang": "js",
-    "file": "practice/steps/16-02.js"
+    "file": "practice/steps/16-02.js",
+    "teachingStep": 2
   },
   {
     "id": "16-03",
@@ -700,7 +753,8 @@ globalThis.learningDrills = [
     "hint": "index 已经记录了这项在输入中的位置。",
     "explanation": "保存下标，可以把完成顺序与返回顺序分开。",
     "lang": "js",
-    "file": "practice/steps/16-03.js"
+    "file": "practice/steps/16-03.js",
+    "teachingStep": 3
   },
   {
     "id": "17-01",
@@ -713,7 +767,8 @@ globalThis.learningDrills = [
     "hint": "把三个判断用 && 连起来。",
     "explanation": "第一层检查只证明能按键读值，不代表里面字段已经有效。",
     "lang": "ts",
-    "file": "practice/steps/17-01.ts"
+    "file": "practice/steps/17-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "17-02",
@@ -726,7 +781,8 @@ globalThis.learningDrills = [
     "hint": "这题问类型，不是把值转换成真假。",
     "explanation": "Boolean(\"false\") 为 true，强制转换不能替代类型校验。",
     "lang": "ts",
-    "file": "practice/steps/17-02.ts"
+    "file": "practice/steps/17-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "17-03",
@@ -739,7 +795,8 @@ globalThis.learningDrills = [
     "hint": "把 index 放在方括号里，再用点连接 field。",
     "explanation": "一条清楚的错误路径能让用户定位到需要修正的数据。",
     "lang": "ts",
-    "file": "practice/steps/17-03.ts"
+    "file": "practice/steps/17-03.ts",
+    "teachingStep": 3
   },
   {
     "id": "18-01",
@@ -752,7 +809,8 @@ globalThis.learningDrills = [
     "hint": "keyof Events 可以用在参数类型的位置。",
     "explanation": "事件名也可以受到类型限制，避免拼错还照常运行。",
     "lang": "ts",
-    "file": "practice/steps/18-01.ts"
+    "file": "practice/steps/18-01.ts",
+    "teachingStep": 1
   },
   {
     "id": "18-02",
@@ -765,7 +823,8 @@ globalThis.learningDrills = [
     "hint": "方括号在类型中表示取某个字段对应的类型。",
     "explanation": "Events[\"saved\"] 读的是类型表中的载荷形状，不是运行时数组。",
     "lang": "ts",
-    "file": "practice/steps/18-02.ts"
+    "file": "practice/steps/18-02.ts",
+    "teachingStep": 2
   },
   {
     "id": "18-03",
@@ -778,6 +837,7 @@ globalThis.learningDrills = [
     "hint": "这里先用一个布尔值练习，完整题目再移除对应监听器。",
     "explanation": "取消函数也是普通函数：调用它会执行你写下的取消动作。",
     "lang": "ts",
-    "file": "practice/steps/18-03.ts"
+    "file": "practice/steps/18-03.ts",
+    "teachingStep": 3
   }
 ];

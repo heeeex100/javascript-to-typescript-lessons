@@ -15,6 +15,7 @@ test("CLI 验收识别提前退出和错误参数，正确代码才通过，练�
     // 用 JSON 编码课程数据，避免夹具的多层引号影响实际验收。
     await writeFile(join(root, "workshop/labs.js"), "globalThis.learningLabs=" + JSON.stringify([{ id: "01", title: "验收", file: "practice/01.js", lang: "js", checks: 'check(value===2, "应为2");' }]) + ";");
     await writeFile(join(root, "workshop/advanced-labs.js"), "");
+    await writeFile(join(root, "workshop/finals.js"), "");
     await writeFile(join(root, "workshop/drills.js"), "globalThis.learningDrills=" + JSON.stringify([
       { id: "02-01", title: "只练一步", lang: "js", file: "practice/steps/02-01.js", starter: "const value=0;", answer: "const value=2;", checks: 'check(value===2,"应为2");' },
     ]) + ";");

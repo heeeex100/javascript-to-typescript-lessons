@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { runInNewContext } from "node:vm";
 import "../workshop/labs.js";
 import "../workshop/advanced-labs.js";
+import "../workshop/finals.js";
 import "../workshop/state.js";
 import "../workshop/runner.js";
 

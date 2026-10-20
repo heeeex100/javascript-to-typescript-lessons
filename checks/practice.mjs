@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import "../workshop/labs.js";
 import "../workshop/advanced-labs.js";
+import "../workshop/finals.js";
 import "../workshop/drills.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));

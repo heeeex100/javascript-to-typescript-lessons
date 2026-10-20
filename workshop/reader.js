@@ -41,7 +41,7 @@ globalThis.WorkshopReader = (() => {
     };
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (/^<!-- foundations:(start|end) -->$/.test(line)) { flush(); continue; }
+      if (/^<!-- (?:foundations:(?:start|end)|drill:\d{2}-\d{2}) -->$/.test(line)) { flush(); continue; }
       if (line.startsWith("```")) {
         flush(); const language = line.slice(3).trim(); const codeLines = [];
         while (++i < lines.length && !lines[i].startsWith("```")) codeLines.push(lines[i]);

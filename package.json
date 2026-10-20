@@ -22,7 +22,7 @@
     "workshop": "node scripts/serve-workshop.mjs",
     "verify:labs": "node checks/practice.mjs",
     "verify:advanced": "node checks/practice.mjs --advanced",
-    "test:workshop": "node --test checks/workshop.test.mjs checks/static-server.test.mjs checks/lab-runner.test.mjs checks/concept-runner.test.mjs"
+    "test:workshop": "node --test checks/workshop.test.mjs checks/static-server.test.mjs checks/lab-runner.test.mjs checks/concept-runner.test.mjs checks/finals.test.mjs"
   },
   "devDependencies": {
     "typescript": "7.0.2"

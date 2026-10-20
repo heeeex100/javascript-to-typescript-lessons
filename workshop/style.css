@@ -27,6 +27,10 @@ h1 { font-size: clamp(25px, 2.5vw, 38px); letter-spacing: -.03em; line-height: 1
 .lesson-step-nav span { font-size: 13px; color: #516157; }
 .lesson-content h4 { font-size: 18px; margin: 18px 0 10px; }
 .small-steps { margin: 0 0 28px; border: 1px solid #d4dfd0; border-radius: 12px; padding: 22px; background: #fff; min-width: 0; }
+.lesson-step-body > .small-steps { margin-top: 24px; border-left: 4px solid #4d846f; }
+.final-title { font-size: 24px; margin: 32px 0 10px; }
+#final-exercise { scroll-margin-top: 20px; }
+#final-examples { padding: 12px; background: #edf2e8; border-radius: 8px; }
 .small-steps h2 { font-size: 19px; margin-bottom: 16px; }
 .small-steps label { display: block; font-size: 14px; margin: 10px 0 6px; }
 .small-steps select { width: 100%; max-width: 600px; padding: 10px; border: 1px solid #b9cbbb; background: #f4f7f0; border-radius: 6px; font: inherit; }

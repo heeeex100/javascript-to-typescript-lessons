@@ -11,7 +11,7 @@ globalThis.WorkshopMini = (() => {
       }
     }
   } catch { canSave = false; }
-  let current, worker, timer, token = 0;
+  let current, worker, timer, token = 0, continueLesson;
   function stop() {
     token++; worker?.terminate(); worker = null; clearTimeout(timer);
     $("drill-run").disabled = false; $("drill-check").disabled = false; $("drill-stop").disabled = true;
@@ -19,6 +19,7 @@ globalThis.WorkshopMini = (() => {
   function choose(id) {
     stop(); current = learningDrills.find(item => item.id === id);
     $("drill-picker").value = id;
+    $("drill-title").textContent = "就地小练习 · " + current.title;
     $("drill-prompt").textContent = current.prompt;
     $("drill-code").value = drafts[id] ?? current.starter;
     const local = current.lang === "ts";
@@ -31,7 +32,8 @@ globalThis.WorkshopMini = (() => {
     $("drill-answer").replaceChildren(WorkshopReader.render("```" + current.lang + "\n" + current.answer + "```\n\n" + current.explanation, location.href));
     for (const details of $("small-steps").querySelectorAll("details")) details.open = false;
     $("drill-output").textContent = "先运行看看，再改一处；检查反馈只针对这一步。";
-    $("drill-next").disabled = !$("drill-picker").options[$("drill-picker").selectedIndex + 1];
+    $("drill-next").disabled = !continueLesson && !$("drill-picker").options[$("drill-picker").selectedIndex + 1];
+    $("drill-next").textContent = "继续学习 →";
   }
   function save() {
     drafts[current.id] = $("drill-code").value;
@@ -69,12 +71,16 @@ globalThis.WorkshopMini = (() => {
   $("drill-check").onclick = () => run(true);
   $("drill-stop").onclick = () => { stop(); $("drill-output").textContent += "\n已主动停止。"; };
   $("drill-next").onclick = () => {
+    if (continueLesson) { continueLesson(); return; }
     const picker = $("drill-picker"); const option = picker.options[picker.selectedIndex + 1];
     if (option) choose(option.value);
   };
   return {
-    select(lesson) {
-      const items = learningDrills.filter(item => item.lesson === lesson);
+    select(lesson, step, onContinue) {
+      continueLesson = onContinue;
+      const items = learningDrills.filter(item => item.lesson === lesson && (step === undefined || item.teachingStep === step));
+      $("drill-picker").hidden = items.length <= 1;
+      document.querySelector('label[for="drill-picker"]').hidden = items.length <= 1;
       $("small-steps").hidden = !items.length;
       $("drill-picker").replaceChildren(...items.map((item, i) => {
         const option = document.createElement("option"); option.value = item.id;
