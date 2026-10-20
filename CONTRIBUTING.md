@@ -10,15 +10,17 @@
 npm ci --ignore-scripts
 npm run verify
 npm run verify:labs
+npm run verify:drills
 ```
 
 verify 包含概念同步检查、18 个概念例子的真实执行与预期输出核对、TS 编译、项目/示例行为检查及实验台自动化测试。verify:labs 使用内置起始代码及参考答案，检查起始问题确实被发现、正确解法确实通过；不读取学习者已完成的答案来判断起始题是否失败。
 
-GitHub Actions 在 Windows/Linux、Node.js 24/26 上执行以上命令。浏览器 DOM 第 07 关和页面交互仍需人工或浏览器自动化确认，命令行通过不代表 UI 已验证。
+verify:drills 另行检查 60 道小题的起点应失败、参考写法应通过。GitHub Actions 在 Windows/Linux、Node.js 24/26 上执行以上命令。浏览器 DOM 第 07 关和页面交互仍需人工或浏览器自动化确认，命令行通过不代表 UI 已验证。
 
 ## 修改概念与题目
 
-- 概念原稿：reference/foundations/00.md 到 18.md。保留一个可独立执行的 js、ts 或 html 代码块；修改后运行 `npm run sync:concepts`，提交自动更新的讲义和 workshop/foundations.js。
+- 概念原稿：reference/foundations/00.md 到 18.md。用五个 `####` 标题划分学习步骤，先举具体例子再解释。第一个 js/ts/html 代码块由 concept 命令独立运行；后续代码用于对照实验。修改后运行 `npm run sync:concepts`，提交自动更新的讲义和 workshop/foundations.js。
+- 小题原稿：workshop/drills.js。每题包含单一目标、起点、检查、提示、参考写法与解释；讲义中的小题由同步脚本生成。小题草稿使用独立浏览器存储和 practice/steps 文件，不覆盖主挑战。
 - 如果示例的预期输出有意改变，同时更新 checks/concepts.mjs 中对应预期，并确认正文中的解释相符。
 - 基础题目数据：workshop/labs.js；进阶题目：workshop/advanced-labs.js。调整验收时同步题目说明、起始文件与参考解法。
 - 学习者的 `practice/concepts/` 是独立实验，不提交 Git，也不进入课程压缩包。不要为了让测试通过而替学习者填写 practice 或 exercises。

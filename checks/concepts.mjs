@@ -4,12 +4,12 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const expected = {
-  "00": /数组：15 分钟\s+topic/,
+  "00": /\n小林\s*$/,
   "01": /82 10\s+string number\s+0 NaN/,
-  "02": /2 0\s+3 3\s+5 8\s+最终 8/,
-  "03": /21 42/,
-  "04": /JS true\s+false true/,
-  "05": /string 复习\s+true\s+false/,
+  "02": /开始 0\s+加了 3 后 3\s+再加 5 后 8/,
+  "03": /\n21\s*$/,
+  "04": /\nJS\s+JS\s*$/,
+  "05": /\nstring\s+复习\s*$/,
   "06": /开始\s+进入函数\s+继续主流程\s+已完成/,
   "08": /\n12\s*$/,
   "09": /""\s+空白或缺失/,

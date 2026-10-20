@@ -3,22 +3,17 @@
 今天做出来的效果：**先看真实类型错误，再把文本转成数字，得到 25。**
 
 <!-- foundations:start -->
-## 动手前先认识
+## 一步一步看懂，再拆开练
 
-先读下面几个概念，再展开小例子预测输出。看完即可回到本关练习，不必先背术语。
+一次只看一小步。先运行具体代码、逐行看值怎样变化，做几个小练习后再组合成主挑战。
 
-### TypeScript、类型推断与编译
+### 在运行前，就提醒你传错了东西
 
-**TypeScript（TS）**在 JS 的基础上增加类型表达和静态检查。它帮助你在运行前发现某些错误，不会替你验证所有真实输入，也不保证业务逻辑正确。
+第 01 关你见过文字与数字混算。现在我们给函数写一句更明确的要求：“这个位置只接收数字”。先看约定如何被检查，再看真正的转换发生在哪。
 
-- **类型注解**：参数后的 `: number` 声明允许的类型；函数参数列表后的 `: number` 声明返回类型。它不是把值转成数字的命令。
-- **类型推断**：`const label = "学习"` 即使不写注解，编译器也能推断类型。常见类型包括 string、number、boolean 和数组类型 number[]。
-- **本课程执行链**：编辑 .ts → tsc 检查并生成 .js → Node.js 执行 .js。这里的 lab 命令只在检查成功后继续运行；其他运行方式可能有不同策略。
-- **类型擦除**：类型注解、interface 等不会成为运行时的数据检查器。外部输入还要用 JS 逻辑验证；`as number` 只是向编译器作断言，不会转换字符串。
-- **与 Java 的联系**：都能在执行前检查部分类型错误；TS 的类型主要描述 JS 值的形状，interface 本身不会生成运行时类。
+#### 1 · 先看这一个例子
 
-<details>
-<summary>读例子 → 改一个地方 → 检查理解</summary>
+先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```ts
 function twice(value: number): number {
@@ -30,22 +25,133 @@ console.log(twice(numeric));
 // twice(text); // 取消注释会产生类型错误
 ```
 
-**逐步理解**：Number(text) 是运行时转换，类型注解是运行前检查，两者职责不同。正常输出 12；取消最后一行的注释，会指出 string 不符合 number 参数。
+原例可在终端运行：`npm run concept -- 08`。
 
-**动手试一试**：在独立 concept.ts 文件中试这个片段。可用 npx --no-install tsc --ignoreConfig --strict --noEmit concept.ts 只检查；运行仍按本关 practice 文件和 lab 命令进行。
+#### 2 · 一行一行看它做了什么
 
-这是独立的概念小实验，不计入本关验收。先在项目根目录运行 `npm run concept -- 08` 查看原例输出（TS 关卡先运行 `npm ci` 安装编译器）。运行 `npm run concept -- 08 --prepare` 创建 `practice/concepts/08.ts`，修改后用 `npm run concept -- 08 --local` 体验自己的版本。重复准备会保留你的修改，挑战代码不受影响。
+`function twice(value: number): number` 中，第一个 number 跟在 value 后面，说“输入 value 必须是数字”；最后的 number 说“这个函数交回的结果也是数字”。
 
-**先回答，再展开**：把 text as number 强行传入函数，就真的变成数字了吗？为什么不应使用 any 来“修好”本关？
+text 存的是带引号的 "6"。`Number(text)` 这一步才真正把文字读成数字 6，numeric 保存这个结果。twice(numeric) 接收 6，返回 12。
+
+类型注解不会执行 Number。你写 `value: number`，只是给检查器看的一条要求，不会让传入的字符串自己变成数字。
+
+最后的 `//` 表示这一行是注释，目前不执行。取消注释后，twice(text) 把文字传到要求数字的位置，编译器就会指出错误。
+
+#### 3 · 改一点，再看一次
+
+先保持原样运行，看到 12。然后取消最后一行注释，重新检查，看报错指向哪里。
+
+接着保留错误调用，把类型改为 any，虽然可能不报错，但你也失去这条保护。恢复 number，在调用位置做 Number(text)，让数据本身满足要求。
+
+本课程的命令依次做：检查 .ts → 生成 .js → Node.js 运行 .js。检查失败就先停下来，修好后再执行。不需要初学时自己管理临时编译目录。
+
+如果要保留自己的实验，先运行 `npm run concept -- 08 --prepare`，修改创建的文件，再用 `npm run concept -- 08 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
+
+#### 4 · 分开练，先不做整道题
+
+1. **先读懂参数类型**：add 只收数字。在调用处转换 text，保留函数参数的 number。
+2. **再给函数写清输入输出**：把 value 的类型写为 number，返回类型也为 number，保留乘法。
+3. **返回值也要真的符合类型**：read 的返回类型是 number，但现在返回文字。修好实现。
+
+网页下方有对应的小练习。每次只做一题：先运行起点 → 修改 → 检查 → 说清变化。做对以后换下一题，不需要先把整个主挑战写完。TS 小练习显示本地文件和命令，由真实编译器检查。
+
+#### 5 · 做过之后，再认识这些名字
+
+这种运行前的检查叫**静态类型检查**。TS 是在 JS 上增加类型写法和检查的语言。
+
+类型描述会在生成 JS 时被去掉，不能替你验证网络或文件里来的真实内容。`as` 也不会转换值；需要转换就写实际转换，需要拒绝非法输入就写实际判断。
+
+做完小练习后，回主挑战把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
+## 本关小步练习
+
+### 08-01 · 先读懂参数类型
+
+add 只收数字。在调用处转换 text，保留函数参数的 number。
+
+```ts
+function add(a: number, b: number): number { return a + b; }
+const text = "6";
+const result = add(text, 2);
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 08-01 --prepare` 后编辑 `practice/steps/08-01.ts`，再运行 `npm run drill -- 08-01 --check`。
 
 <details>
-<summary>查看解释</summary>
+<summary>一点提示</summary>
 
-断言不转换值，编译器还可能指出这两种类型缺乏重叠。any 会放弃相关检查，掩盖输入不符合约定的问题；应明确转换并按需求校验。
+类型注解不转换数据；Number(text) 才转换。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```ts
+function add(a: number, b: number): number { return a + b; }
+const text = "6";
+const result = add(Number(text), 2);
+```
+
+编译器指出输入不合约定后，要修正实际值。
 
 </details>
 
+### 08-02 · 再给函数写清输入输出
+
+把 value 的类型写为 number，返回类型也为 number，保留乘法。
+
+```ts
+function twice(value): number { return value * 2; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 08-02 --prepare` 后编辑 `practice/steps/08-02.ts`，再运行 `npm run drill -- 08-02 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+参数名后面写 : number。
+
 </details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```ts
+function twice(value: number): number { return value * 2; }
+```
+
+参数类型约束调用者；返回类型约束函数交出的结果。
+
+</details>
+
+### 08-03 · 返回值也要真的符合类型
+
+read 的返回类型是 number，但现在返回文字。修好实现。
+
+```ts
+function read(text: string): number { return text; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 08-03 --prepare` 后编辑 `practice/steps/08-03.ts`，再运行 `npm run drill -- 08-03 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+改函数体，不要把返回类型改成 any。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```ts
+function read(text: string): number { return Number(text); }
+```
+
+注解说明承诺，函数体必须兑现承诺。
+
+</details>
+
 <!-- foundations:end -->
 
 ## 先打开，再运行

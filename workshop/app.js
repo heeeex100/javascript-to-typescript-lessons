@@ -79,9 +79,9 @@ function select(id, historyMode = "push") {
   $("eyebrow").textContent = `${current.advanced ? "进阶挑战 · " : ""}第 ${current.id} 关 / ${current.lang === "ts" ? "用 TypeScript 检查自己的代码" : current.lang === "dom" ? "让代码改变页面" : "在具体问题里学习 JavaScript"}`;
   $("title").textContent = current.title;
   $("goal").textContent = current.goal;
-  $("foundations-content").replaceChildren(globalThis.WorkshopReader.render(
-    globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href
-  ));
+  globalThis.WorkshopLessonSteps.show($("foundations-content"),
+    globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href);
+  globalThis.WorkshopMini.select(current.id);
   $("foundations-panel").open = true;
   $("concept-command").textContent = `npm run concept -- ${current.id}${current.lang === "dom" ? " --prepare" : ""}`;
   $("language").textContent = current.lang === "ts" ? "TypeScript · 本地编译" : current.lang === "dom" ? "浏览器 DOM" : "JavaScript · 可编辑";

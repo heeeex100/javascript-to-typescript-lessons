@@ -5,22 +5,17 @@
 建议预备知识：第 03、04 关，理解闭包和数组。建议拆成 2～3 次完成，每次 25～35 分钟；卡住时先缩小输入，不必一次写完。
 
 <!-- foundations:start -->
-## 动手前先认识
+## 一步一步看懂，再拆开练
 
-先读下面几个概念，再展开小例子预测输出。看完即可回到本关练习，不必先背术语。
+一次只看一小步。先运行具体代码、逐行看值怎样变化，做几个小练习后再组合成主挑战。
 
-### 闭包、栈与撤销状态机
+### 先让函数记住上次，再谈撤销
 
-**闭包**是函数仍能访问它定义时所在作用域中的变量，即使外层函数已经返回。它适合给每个编辑器实例保存独立的当前状态和历史。
+撤销需要记得上一份内容。先别直接写完整历史系统，先看返回的函数为什么还能记得自己的数字，再看最近的历史放在哪里。
 
-- **栈**是后进先出的集合：push 放入顶部，pop 取出最后加入的元素。最近一次操作应最先撤销，正好对应栈。
-- **状态机**用“当前状态 + 操作 → 下一状态”描述规则。撤销可把当前状态推到 future，再从 past 取上一份；重做走反方向。
-- **历史分叉**：撤销后做新修改，相当于沿另一条路线继续，旧 future 应清空。否则重做会跳回已经放弃的分支。
-- **快照与引用**：历史里若存的是同一个可变数组，就不是独立历史。需要按照合同复制边界，避免调用方通过返回值改坏内部状态。
-- **实例隔离**：状态放在工厂函数内部，每次调用创建一份；放在全局则容易让两个编辑器互相影响。
+#### 1 · 先看这一个例子
 
-<details>
-<summary>读例子 → 改一个地方 → 检查理解</summary>
+先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```js
 function createCounter() {
@@ -34,22 +29,129 @@ const history = ["草稿 A", "草稿 B"];
 console.log(history.pop(), history.length);
 ```
 
-**逐步理解**：输出“1 2 1”和“草稿 B 1”。a 和 b 保存各自的 value；pop 取出最近的历史并修改栈。这里只演示闭包与栈，不是完整撤销实现。
+原例可在终端运行：`npm run concept -- 14`。
 
-**动手试一试**：把 value 移到 createCounter 外，重新观察 b()。再画出 A → B → C、撤销到 B、改成 D 时 past/present/future 应是什么。
+#### 2 · 一行一行看它做了什么
 
-这是独立的概念小实验，不计入本关验收。先在项目根目录运行 `npm run concept -- 14` 查看原例输出（TS 关卡先运行 `npm ci` 安装编译器）。运行 `npm run concept -- 14 --prepare` 创建 `practice/concepts/14.mjs`，修改后用 `npm run concept -- 14 --local` 体验自己的版本。重复准备会保留你的修改，挑战代码不受影响。
+createCounter 每调用一次，会创建自己那份 value=0，并返回一个小函数。之后调用 a()，调用的是这份返回的小函数。
 
-**先回答，再展开**：为什么撤销到 B 后新建 D，应当清空可重做的 C？
+a 第一次把自己的 value 改为 1，第二次在原来的 1 上加，得到 2。b 来自另外一次 createCounter，它有自己独立的 value，所以第一次仍为 1。
+
+这里外层函数结束后，返回的小函数还可以读写那份 value。并不是每次调用 a 都重新从 0 开始。
+
+history 的最后一项是“草稿 B”，pop() 把最后加入的一项拿出来，并从数组里删掉。取完后只剩一项。最近加入的先拿出，适合“先撤销最近的一次”。
+
+#### 3 · 改一点，再看一次
+
+先把 value=0 移进返回的小函数，观察 a 两次都变成 1。再移回原处，恢复 1、2。这一轮只理解“在哪里创建、什么时候创建”。
+
+接着在纸上写 A→B→C。撤销一次回 B：C 放进可重做列表；再修改成 D，路线变成 A→B→D，旧路线 C 就应清掉。
+
+最后想一个问题：如果三份历史其实都指着同一个可变数组，改一份会不会把过去也改了？回看第 12 关的复制实验。
+
+如果要保留自己的实验，先运行 `npm run concept -- 14 --prepare`，修改创建的文件，再用 `npm run concept -- 14 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
+
+#### 4 · 分开练，先不做整道题
+
+1. **先让函数记住上次的数**：调用同一个计数器，依次得到 1、2；新计数器仍从 1 开始。
+2. **再拿最近的一份历史**：不改原数组，返回最近一次历史值 C。
+3. **做新修改就放弃旧未来**：旧 future 有 [C]。在修改为 D 时，让 future 清空。
+
+网页下方有对应的小练习。每次只做一题：先运行起点 → 修改 → 检查 → 说清变化。做对以后换下一题，不需要先把整个主挑战写完。TS 小练习显示本地文件和命令，由真实编译器检查。
+
+#### 5 · 做过之后，再认识这些名字
+
+返回的函数仍能使用定义它时的外部变量，这个现象叫**闭包**。后放入、先取出的历史集合叫**栈**。
+
+past、present、future 只是过去、现在、可重做三份状态的命名。先把每次操作前后这三份内容写清楚，再动手实现。
+
+做完小练习后，回主挑战把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
+## 本关小步练习
+
+### 14-01 · 先让函数记住上次的数
+
+调用同一个计数器，依次得到 1、2；新计数器仍从 1 开始。
+
+```js
+function createCounter() { return () => { let value=0; value+=1; return value; }; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 14-01 --prepare` 后编辑 `practice/steps/14-01.js`，再运行 `npm run drill -- 14-01 --check`。
 
 <details>
-<summary>查看解释</summary>
+<summary>一点提示</summary>
 
-D 从 B 开始形成新分支，C 属于旧分支；保留它会让“重做”含义混乱。是否允许分支历史是另一种产品设计，本关采用单线历史。
+把 let value=0 移到返回函数的外面，仍放在 createCounter 里面。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+function createCounter() { let value=0; return () => { value+=1; return value; }; }
+```
+
+返回的函数记得外层那份 value，这个现象叫闭包。
 
 </details>
 
+### 14-02 · 再拿最近的一份历史
+
+不改原数组，返回最近一次历史值 C。
+
+```js
+function latest(history) { return history[0]; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 14-02 --prepare` 后编辑 `practice/steps/14-02.js`，再运行 `npm run drill -- 14-02 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+最后一项可用 at(-1)。
+
 </details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+function latest(history) { return history.at(-1); }
+```
+
+后加入的先取出，符合最近一次操作先撤销的顺序。
+
+</details>
+
+### 14-03 · 做新修改就放弃旧未来
+
+旧 future 有 [C]。在修改为 D 时，让 future 清空。
+
+```js
+function edit(state,value) { return {past:[...state.past,state.present],present:value,future:state.future}; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 14-03 --prepare` 后编辑 `practice/steps/14-03.js`，再运行 `npm run drill -- 14-03 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+新建结果里的 future 改为 []。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+function edit(state,value) { return {past:[...state.past,state.present],present:value,future:[]}; }
+```
+
+B→D 是新路线，旧路线里的 C 不能作为 D 的下一步重做。
+
+</details>
+
 <!-- foundations:end -->
 
 ## 先复现一个真实问题

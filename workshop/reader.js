@@ -46,6 +46,7 @@ globalThis.WorkshopReader = (() => {
         flush(); const language = line.slice(3).trim(); const codeLines = [];
         while (++i < lines.length && !lines[i].startsWith("```")) codeLines.push(lines[i]);
         const box = document.createElement("div"); box.className = "lesson-code";
+        box.dataset.language = language;
         const pre = document.createElement("pre"); const code = document.createElement("code");
         code.textContent = codeLines.join("\n"); pre.append(code);
         const button = document.createElement("button"); button.type = "button"; button.textContent = "复制代码";

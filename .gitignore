@@ -6,6 +6,7 @@ dist/
 exports/
 # 学习者独立实验和本机配置
 practice/concepts/
+practice/steps/
 /concept.mjs
 /concept.ts
 /concept.js

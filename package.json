@@ -17,6 +17,8 @@
     "exercise:js": "node checks/js-exercises.mjs",
     "exercise:ts": "npm run build && node checks/ts-exercises.mjs",
     "lab": "node scripts/lab.mjs",
+    "drill": "node scripts/lab.mjs --drill",
+    "verify:drills": "node checks/practice.mjs --drills",
     "workshop": "node scripts/serve-workshop.mjs",
     "verify:labs": "node checks/practice.mjs",
     "verify:advanced": "node checks/practice.mjs --advanced",

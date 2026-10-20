@@ -10,6 +10,7 @@ files = [root / name for name in names]
 for folder in folders:
     files.extend(p for p in (root / folder).rglob("*") if p.is_file() and not p.is_symlink()
                  and p.name != ".DS_Store" and not p.is_relative_to(root / "practice" / "concepts")
+                 and not p.is_relative_to(root / "practice" / "steps")
                  and not any(part.startswith(".") or part == "__pycache__" for part in p.relative_to(root / folder).parts))
 output = root / "exports"
 output.mkdir(exist_ok=True)

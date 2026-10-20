@@ -3,22 +3,17 @@
 今天做出来的效果：**添加或完成任务时，“剩余 N 项”都要同步变化。**
 
 <!-- foundations:start -->
-## 动手前先认识
+## 一步一步看懂，再拆开练
 
-先读下面几个概念，再展开小例子预测输出。看完即可回到本关练习，不必先背术语。
+一次只看一小步。先运行具体代码、逐行看值怎样变化，做几个小练习后再组合成主挑战。
 
-### DOM、事件、状态与渲染
+### 数据变了，为什么页面上的字还没变
 
-**DOM（文档对象模型）**是浏览器对 HTML 页面建立的对象树。JS 通过这些对象读写页面；普通 Node.js 脚本没有浏览器的 document。
+先把页面想成一张展示板。变量 clicks 是你在程序里记的数字，页面上的文字是另一次写出去的结果；修改数字后，要再写一次展示板。
 
-- **查询元素**：`document.querySelector("#count")` 查找 id 为 count 的元素；找不到会返回 null。脚本要在相关元素创建后执行，例如使用 defer 或放在元素后面。
-- **事件与监听器**：addEventListener 注册回调；注册时不执行回调，用户点击等事件发生时才调用。回调可以更新数据，再更新页面。
-- **状态与渲染**：状态是程序当前的数据；render 把状态反映到页面。数组变化不会自动改变原生 DOM，必须调用相应更新代码。
-- **文本与 HTML**：textContent 将内容作为文字显示，适合用户输入；innerHTML 会解析 HTML。这里始终使用 textContent 展示任务文本。
-- **表单默认行为**：提交表单可能触发页面导航；需要留在当前页面处理时，在 submit 事件里使用 event.preventDefault()。
+#### 1 · 先看这一个例子
 
-<details>
-<summary>读例子 → 改一个地方 → 检查理解</summary>
+先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```html
 <button id="add">加一次</button>
@@ -35,22 +30,137 @@
 </script>
 ```
 
-**逐步理解**：这是完整 HTML 片段，可单独保存为 concept-dom.html 后用浏览器打开。初始显示 0 次，每点击一次增加 1。脚本在元素后面，所以查询时元素已存在。
+用浏览器打开本关 HTML。
 
-**动手试一试**：暂时删除回调里的 render()，点击两次后观察文字为什么没变。不要覆盖本关已有页面；另建实验文件即可。
+#### 2 · 一行一行看它做了什么
 
-这是独立的概念小实验，不计入本关验收。运行 `npm run concept -- 07 --prepare` 创建 `practice/concepts/07.html`，用浏览器打开并修改；重新准备不会覆盖已有文件。
+HTML 的 button 创建按钮，p 创建放文字的区域；id 是让脚本找到它们的名字。这里脚本写在元素后面，因此运行时元素已经存在。
 
-**先回答，再展开**：clicks 已经变成 2，页面为什么仍可能显示 0？
+`document.querySelector("#count")` 在页面里找到 id=count 的那一块。先把找到的对象记为 label，后面就能更新它。
+
+`label.textContent = ...` 把文字写进这一块。render() 每次读最新的 clicks，重新算出“点击 N 次”，再写出去。
+
+addEventListener 注册一段“发生点击时再执行”的函数。注册时不先加 1；你点击后，才先 clicks+=1，然后 render() 更新文字。最后那句 render() 则负责页面刚打开时显示 0。
+
+#### 3 · 改一点，再看一次
+
+第一轮：打开 HTML，连续点击两次，应该从 0 变成 1、再变成 2。
+
+第二轮：暂时删掉点击函数里的 render()，刷新后再点两次。程序里的 clicks 已改变，但显示还停在 0，因为没人把最新数字再写到页面。
+
+第三轮：恢复 render()，把显示文字换成“我点了 N 下”。用 textContent 显示用户文字，页面就把它作为文字处理；不要为了显示一个标题就改用 innerHTML。
+
+本页新增的小练习先让你算对文字和剩余数量；主挑战再把它接到真实 DOM。
+
+如果要保留自己的实验，先运行 `npm run concept -- 07 --prepare`，修改创建的文件，再用 `npm run concept -- 07 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
+
+#### 4 · 分开练，先不做整道题
+
+1. **先练页面上要显示的那句话**：输入剩余数量，返回“剩余 N 项”。这题只练字符串，真实 DOM 在下面主挑战操作。
+2. **再练统计未完成数量**：传入任务数组，返回未完成数量。
+3. **最后练数据变化后的重新计算**：任务已经完成。让 label 根据新数据重新得到“剩余 0 项”。
+
+网页下方有对应的小练习。每次只做一题：先运行起点 → 修改 → 检查 → 说清变化。做对以后换下一题，不需要先把整个主挑战写完。TS 小练习显示本地文件和命令，由真实编译器检查。
+
+#### 5 · 做过之后，再认识这些名字
+
+浏览器把 HTML 变成可操作的元素对象，这套对象叫 **DOM**。点击等发生的事情叫**事件**，收到事件后执行的函数叫**监听器**。
+
+这里 render 只是我们给“重新把数据写到页面”这段函数起的名字，不是 JavaScript 自带的神奇刷新开关。普通 Node.js 脚本没有浏览器的 document，HTML 实验应在浏览器里打开。
+
+做完小练习后，回主挑战把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
+## 本关小步练习
+
+### 07-01 · 先练页面上要显示的那句话
+
+输入剩余数量，返回“剩余 N 项”。这题只练字符串，真实 DOM 在下面主挑战操作。
+
+```js
+function remainingText(count) { return "剩余 0 项"; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 07-01 --prepare` 后编辑 `practice/steps/07-01.js`，再运行 `npm run drill -- 07-01 --check`。
 
 <details>
-<summary>查看解释</summary>
+<summary>一点提示</summary>
 
-变量与 DOM 是两份不同的状态表示。这里只更新变量不会自动渲染；调用 render 才会把最新值写入 textContent。
+模板字符串里的 ${count} 读本次传入的数。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+function remainingText(count) { return `剩余 ${count} 项`; }
+```
+
+先把要显示的文字算对，下一步才写进页面。
 
 </details>
 
+### 07-02 · 再练统计未完成数量
+
+传入任务数组，返回未完成数量。
+
+```js
+function remainingCount(tasks) { return tasks.length; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 07-02 --prepare` 后编辑 `practice/steps/07-02.js`，再运行 `npm run drill -- 07-02 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+回想第 04 关 filter 的判断。
+
 </details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+function remainingCount(tasks) { return tasks.filter(task => !task.done).length; }
+```
+
+总任务数和未完成数量是不同的值，页面需要的是后者。
+
+</details>
+
+### 07-03 · 最后练数据变化后的重新计算
+
+任务已经完成。让 label 根据新数据重新得到“剩余 0 项”。
+
+```js
+const task = { done: false };
+let label = "剩余 1 项";
+task.done = true;
+// 在这里重新计算 label
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 07-03 --prepare` 后编辑 `practice/steps/07-03.js`，再运行 `npm run drill -- 07-03 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+?: 可以按条件选择两个值；也可以写 if/else。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+const task = { done: false };
+let label = "剩余 1 项";
+task.done = true;
+label = `剩余 ${task.done ? 0 : 1} 项`;
+```
+
+字符串不会追踪对象变化，DOM 的文字同样需要主动更新。
+
+</details>
+
 <!-- foundations:end -->
 
 ## 先打开，再运行

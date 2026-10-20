@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync, existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -8,23 +8,35 @@ import "../workshop/labs.js";
 import "../workshop/advanced-labs.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const args = process.argv.slice(2);
-const selections = args.filter(arg => /^\d{1,2}$/.test(arg));
-const invalidArgs = args.some(arg => !/^\d{1,2}$/.test(arg) && !["--check", "--answer", "--starter"].includes(arg));
+const drillMode = process.argv[2] === "--drill";
+if (drillMode) await import("../workshop/drills.js");
+const args = process.argv.slice(drillMode ? 3 : 2);
+const pattern = drillMode ? /^\d{2}-\d{2}$/ : /^\d{1,2}$/;
+const selections = args.filter(arg => pattern.test(arg));
+const invalidArgs = args.some(arg => !pattern.test(arg) && !["--check", "--answer", "--starter", ...(drillMode ? ["--prepare"] : [])].includes(arg));
 const id = (selections[0] ?? "").padStart(2, "0");
-const lesson = globalThis.learningLabs.find(lab => lab.id === id);
+const lesson = (drillMode ? globalThis.learningDrills : globalThis.learningLabs).find(lab => lab.id === id);
 const checking = args.includes("--check");
 const answer = args.includes("--answer");
-if (!lesson || selections.length !== 1 || invalidArgs || (args.includes("--answer") && args.includes("--starter"))) {
-  console.log("用法：npm run lab -- 01 [--check]\n基础 00～12，进阶 13～18；例如 npm run lab -- 13 --check");
+if (!lesson || selections.length !== 1 || invalidArgs || (args.includes("--answer") && args.includes("--starter")) ||
+    (args.includes("--prepare") && args.length !== 2)) {
+  console.log(drillMode ? "用法：npm run drill -- 02-01 [--prepare | --check]\n先 --prepare 创建独立文件，修改后 --check。" : "用法：npm run lab -- 01 [--check]\n基础 00～12，进阶 13～18；例如 npm run lab -- 13 --check");
   process.exit(args.length === 0 ? 0 : 1);
+}
+if (drillMode && args.includes("--prepare")) {
+  mkdirSync(join(root, "practice/steps"), { recursive: true });
+  try { writeFileSync(join(root, lesson.file), lesson.starter, { flag: "wx" }); }
+  catch (error) { if (error.code !== "EEXIST") throw error; console.log("文件已存在，保留你的修改。"); }
+  console.log(`编辑 ${lesson.file}，保存后运行 npm run drill -- ${id} --check`);
+  process.exit(0);
 }
 if (lesson.lang === "dom") {
   console.log("第 07 关：浏览器打开 practice/07-dom/index.html，编辑同目录 app.js 后刷新。\n验收：初始剩余 1，添加后 2，完成一项后 1。");
   process.exit(0);
 }
-const sourcePath = answer ? `answers/practice/${lesson.id}.${lesson.lang}` : lesson.file;
-const source = args.includes("--starter") ? lesson.starter : readFileSync(join(root, sourcePath), "utf8");
+const sourcePath = drillMode ? (answer ? `小练习 ${id} 的内置参考` : lesson.file) : answer ? `answers/practice/${lesson.id}.${lesson.lang}` : lesson.file;
+const source = drillMode && answer ? lesson.answer : args.includes("--starter") ? lesson.starter :
+  drillMode && !existsSync(join(root, sourcePath)) ? lesson.starter : readFileSync(join(root, sourcePath), "utf8");
 const stage = realpathSync(mkdtempSync(join(tmpdir(), "js-ts-lesson-")));
 const checks = checking ? lesson.checks : "";
 const marker = `__LESSON_COMPLETE_${randomUUID()}__`;

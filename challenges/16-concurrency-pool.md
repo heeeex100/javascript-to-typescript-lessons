@@ -5,22 +5,17 @@
 建议预备知识：第 15 关，理解 Promise 与独立异步流程。建议拆成 2～3 次完成，每次 25～35 分钟；卡住时先缩小输入，不必一次写完。
 
 <!-- foundations:start -->
-## 动手前先认识
+## 一步一步看懂，再拆开练
 
-先读下面几个概念，再展开小例子预测输出。看完即可回到本关练习，不必先背术语。
+一次只看一小步。先运行具体代码、逐行看值怎样变化，做几个小练习后再组合成主挑战。
 
-### 任务工厂、并发上限与结果顺序
+### 先控制什么时候启动，再限制同时做几件
 
-**并发**指多项操作的等待区间互相重叠；不等于多段 JS 计算一定在多核上同时运行。网络请求并发等待很常见，CPU 密集工作则是另一类问题。
+想一次最多做两项任务，第一件事不是学复杂 Promise API，而是确认：工作有没有在你排队之前就开始。先把“动作”和“动作的结果”分开。
 
-- **任务工厂**是 `() => Promise` 这样的函数。调用才发起工作；已经创建的 Promise 往往代表工作已经启动，排队保存 Promise 不能推迟它的开始。
-- **并发上限**限制同时进行的任务数。一个任务结束后释放位置，再领取下一项；不是每隔固定时间才启动下一批。
-- **结果顺序**：启动顺序、完成顺序和返回数组顺序是三回事。给任务分配原始下标，把完成结果写回对应位置，可保留输入顺序。
-- **settled 结果**把成功和失败都表示为数据。某项失败时仍要释放位置并继续其他项；同步 throw 与异步 reject 都要处理。
-- **Promise.all / allSettled**负责聚合已给出的任务结果，本身不提供本关要求的并发数量限制。
+#### 1 · 先看这一个例子
 
-<details>
-<summary>读例子 → 改一个地方 → 检查理解</summary>
+先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```js
 const events = [];
@@ -33,22 +28,137 @@ const results = await Promise.all(factories.map(start => start()));
 console.log(events, results);
 ```
 
-**逐步理解**：第一次输出 0，说明仅创建函数还没启动任务；调用 start 后才记录开始。结果 [0, 10] 保留输入顺序，这个示例没有限制并发数。
+原例可在终端运行：`npm run concept -- 16`。
 
-**动手试一试**：把创建 factories 时的 async 箭头函数立即调用，观察第一次输出是否还为 0。画出上限 2、任务耗时各不相同时谁应最先补位。
+#### 2 · 一行一行看它做了什么
 
-这是独立的概念小实验，不计入本关验收。先在项目根目录运行 `npm run concept -- 16` 查看原例输出（TS 关卡先运行 `npm ci` 安装编译器）。运行 `npm run concept -- 16 --prepare` 创建 `practice/concepts/16.mjs`，修改后用 `npm run concept -- 16 --local` 体验自己的版本。重复准备会保留你的修改，挑战代码不受影响。
+factories 里放的是函数。创建函数时，函数体还没执行，所以第一次 events.length 输出 0。
 
-**先回答，再展开**：为什么把 100 个已经发出的 fetch Promise 放进数组，再每次取两个 await，不能控制只有两个请求在进行？
+map(start => start()) 这一步才依次调用它们，每个函数开始时往 events 记录一条“开始”。因此第二次输出能看到两次启动，以及结果 [0,10]。
+
+这个例子没有做并发限制，它只证明“保存函数可以推迟启动”。如果创建数组时就调用 async 函数，拿到的 Promise 往往表示工作已经开始，晚点 await 也不能把启动时间倒回去。
+
+完整并发池要保留原始下标：第 2 项先结束，也把它写回结果[1]，不要因为完成早就放在结果[0]。
+
+#### 3 · 改一点，再看一次
+
+先做任务工厂小题，确认未调用时 started=0。再做失败结果小题，让同步 throw 和异步 reject 都变成可以保存的结果。
+
+最后做顺序小题：先记录 B 到位置 1，再记录 A 到位置 0，最终仍得到 [A,B]。
+
+在纸上画上限 2：A、B 先开始；B 先结束就立刻让 C 补位，不用等 A。这和每两个一批、全部结束后再开下一批不同。
+
+如果要保留自己的实验，先运行 `npm run concept -- 16 --prepare`，修改创建的文件，再用 `npm run concept -- 16 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
+
+#### 4 · 分开练，先不做整道题
+
+1. **先把启动动作推迟**：tasks 里应存函数。第一次调用前 started 为 0，调用第一项后变成 1。
+2. **再把失败变成可保存的结果**：settle(task) 成功返回 fulfilled，失败返回 rejected，不继续抛出。
+3. **完成顺序不同也能按原顺序放**：任务下标 1 先完成，再完成下标 0；最终仍应 [A,B]。
+
+网页下方有对应的小练习。每次只做一题：先运行起点 → 修改 → 检查 → 说清变化。做对以后换下一题，不需要先把整个主挑战写完。TS 小练习显示本地文件和命令，由真实编译器检查。
+
+#### 5 · 做过之后，再认识这些名字
+
+多项操作的等待区间相互重叠叫**并发**，并不表示 JS 算术一定在多核上同时做。
+
+这里的任务工厂就是“调用才开始工作”的函数。Promise.all / allSettled 帮你收集结果，本身不替你控制启动数量。
+
+做完小练习后，回主挑战把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
+## 本关小步练习
+
+### 16-01 · 先把启动动作推迟
+
+tasks 里应存函数。第一次调用前 started 为 0，调用第一项后变成 1。
+
+```js
+let started=0;
+const tasks=[(() => { started+=1; return Promise.resolve(1); })()];
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 16-01 --prepare` 后编辑 `practice/steps/16-01.js`，再运行 `npm run drill -- 16-01 --check`。
 
 <details>
-<summary>查看解释</summary>
+<summary>一点提示</summary>
 
-fetch 调用已经发起请求，await 只是等待。必须把发起动作延迟到领取任务时，也就是排队保存可调用的任务工厂。
+移除把函数立即执行的那对末尾括号。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+let started=0;
+const tasks=[() => { started+=1; return Promise.resolve(1); }];
+```
+
+排队要保存还没做的动作，不能保存已经启动的结果凭证。
 
 </details>
 
+### 16-02 · 再把失败变成可保存的结果
+
+settle(task) 成功返回 fulfilled，失败返回 rejected，不继续抛出。
+
+```js
+async function settle(task) { return {status:"fulfilled",value:await task()}; }
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 16-02 --prepare` 后编辑 `practice/steps/16-02.js`，再运行 `npm run drill -- 16-02 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+try 同时包住调用 task 和 await 等待。
+
 </details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+async function settle(task) { try { return {status:"fulfilled",value:await task()}; } catch(reason) { return {status:"rejected",reason}; } }
+```
+
+某项失败被记录为数据后，调度器才有机会继续其他项。
+
+</details>
+
+### 16-03 · 完成顺序不同也能按原顺序放
+
+任务下标 1 先完成，再完成下标 0；最终仍应 [A,B]。
+
+```js
+const results=[];
+function record(index,value) { results.push(value); }
+record(1,"B");
+record(0,"A");
+```
+
+在实验台选择这道小题，或运行 `npm run drill -- 16-03 --prepare` 后编辑 `practice/steps/16-03.js`，再运行 `npm run drill -- 16-03 --check`。
+
+<details>
+<summary>一点提示</summary>
+
+index 已经记录了这项在输入中的位置。
+
+</details>
+
+<details>
+<summary>试过后再看解释</summary>
+
+```js
+const results=[];
+function record(index,value) { results[index]=value; }
+record(1,"B");
+record(0,"A");
+```
+
+保存下标，可以把完成顺序与返回顺序分开。
+
+</details>
+
 <!-- foundations:end -->
 
 ## 先复现一个真实问题

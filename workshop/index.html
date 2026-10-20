@@ -9,9 +9,12 @@
   <script defer src="./labs.js"></script>
   <script defer src="./advanced-labs.js"></script>
   <script defer src="./foundations.js"></script>
+  <script defer src="./drills.js"></script>
   <script defer src="./state.js"></script>
   <script defer src="./runner.js"></script>
   <script defer src="./reader.js"></script>
+  <script defer src="./lesson-steps.js"></script>
+  <script defer src="./drill-panel.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
@@ -41,12 +44,31 @@
       <p id="goal" class="goal"></p>
     </header>
     <details id="foundations-panel" class="foundations-panel" open>
-      <summary>动手前先认识 · 本关基础概念</summary>
-      <p class="quiet">先读概念，再展开小例子预测输出、改一个地方。读完可收起，继续下面的挑战。</p>
-      <p class="quiet">在项目目录的终端体验本关小例子：<code id="concept-command"></code>。加 --prepare 创建独立实验文件，修改后加 --local 运行；07 的 HTML 请用浏览器打开。</p>
+      <summary>一步一步看懂 · 从具体代码开始</summary>
+      <p class="quiet">每次只看一小步：先猜输出 → 逐行看值怎么变 → 自己改 → 分开练。名称放在最后。</p>
+      <details><summary>想在本地运行这个例子？</summary><p class="quiet">在项目目录的终端输入：<code id="concept-command"></code>。加 --prepare 创建独立实验文件，修改后加 --local 运行；07 的 HTML 请用浏览器打开。</p></details>
       <div id="foundations-content"></div>
       <a id="foundations-index" href="../reference/概念导航.md">查看整套概念路线 →</a>
     </details>
+    <section id="small-steps" class="small-steps" aria-labelledby="drill-title">
+      <h2 id="drill-title">先拆开练，再做下面的主挑战</h2>
+      <label for="drill-picker">选择一个小步骤</label>
+      <select id="drill-picker"></select>
+      <p id="drill-prompt"></p>
+      <label for="drill-code">这一步的代码</label>
+      <textarea id="drill-code" maxlength="100000" spellcheck="false" aria-describedby="drill-location"></textarea>
+      <p id="drill-location" class="quiet"></p>
+      <div id="drill-actions" class="controls">
+        <button id="drill-run" type="button">运行这一步</button>
+        <button id="drill-check" type="button" class="primary">检查这一步</button>
+        <button id="drill-stop" type="button" disabled>停止</button>
+      </div>
+      <div id="drill-local" hidden><pre id="drill-command"></pre></div>
+      <pre id="drill-output" role="status" aria-live="polite"></pre>
+      <details><summary>给我一点提示</summary><p id="drill-hint"></p></details>
+      <details><summary>试过以后，再看这一小步的解释</summary><div id="drill-answer"></div></details>
+      <button id="drill-next" type="button">下一小题 →</button>
+    </section>
     <div class="workspace">
       <section class="editor-panel" aria-label="代码实验">
         <div class="panel-heading"><label id="editor-label" for="code">你的实验代码</label><span id="language"></span></div>
