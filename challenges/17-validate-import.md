@@ -7,11 +7,9 @@
 
 ### 外面传来的任务，先一层一层检查
 
-拿到一个 JSON 数组，不能因为给它写上 Task[]，就断定里面每一项都正确。像收快递一样：先确认是包裹，再拆开看每个东西。
+拿到一个 JSON 数组，不能因为给它写上 Task[]，就断定里面每一项都正确。数组里的元素可能缺少标题，也可能把 done 写成字符串，每个字段都要检查。
 
 #### 1 · 先排除 null 和数组
-
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```ts
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -35,6 +33,10 @@ done 的值是带引号的 "false"，它是文字。Boolean("false") 却会得�
 因此读取每个字段之后仍要问：它的类型对不对，值的范围对不对。不要用一个“看起来像转换”的动作代替明确检查。
 
 
+返回类型位置的 `value is Record<string, unknown>` 是类型谓词，意思是“这个函数返回 true 时，调用者可把 value 当作这种类型”。它不是函数体里的实际检查；如果函数体错误地总返回 true，TS 可能相信一个不成立的承诺。
+
+`Record<string,unknown>` 描述按字符串键保存未知值的对象类型，Record 不是用来 new 的运行时容器，也不是第 15 关的 Map。typeof null 的历史结果也是 object，数组的 typeof 也是 object，所以要额外排除；这样仍没有验证每个业务字段。
+
 ##### 就地小练习 17-01 · 先排除 null 和数组
 
 只让普通对象形状通过，不让 null 或 [] 通过。
@@ -43,7 +45,7 @@ done 的值是带引号的 "false"，它是文字。Boolean("false") 却会得�
 function isRecord(value: unknown): value is Record<string,unknown> { return typeof value === "object"; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 17-01 --prepare`，编辑 `practice/steps/17-01.ts`，再运行 `npm run drill -- 17-01 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 17-01 --prepare`，编辑 `practice/steps/17-01.ts`，再运行 `npm run drill -- 17-01 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -53,7 +55,7 @@ function isRecord(value: unknown): value is Record<string,unknown> { return type
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function isRecord(value: unknown): value is Record<string,unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
@@ -71,8 +73,10 @@ function isRecord(value: unknown): value is Record<string,unknown> { return type
 
 最后处理重复 id：单看一项并不能发现它和前面某项相同，要另外记住已经出现的 id。先用只有两条重复记录的输入验证，再扩大列表。
 
-如果要保留自己的实验，先运行 `npm run concept -- 17 --prepare`，修改创建的文件，再用 `npm run concept -- 17 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+参考实现用 rows.forEach((row, index) => { ... }) 逐项检查：第一个参数是当前元素，第二个是它的下标，名字由你自己取。forEach 不收集回调返回值；在回调里 return，只是结束当前这一轮回调，不会像从 parseImport 中 return 那样结束整个导入，因此它还能继续收集后面各行的问题。
+
+判断完 row 是非空对象后，"id" in row 问它是否有 id 属性，包括沿原型继承到的属性。引号里的 id 是固定字段名；若用变量 field，则写 field in row。in 是运算符，不是 .in() 方法。它证明“有这个属性”，不证明该值就是合法数字，后面仍需 typeof 和范围检查。
 
 ##### 就地小练习 17-02 · 再问字段值是否真是布尔
 
@@ -82,7 +86,7 @@ function isRecord(value: unknown): value is Record<string,unknown> { return type
 function isDone(value: unknown): value is boolean { return Boolean(value); }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 17-02 --prepare`，编辑 `practice/steps/17-02.ts`，再运行 `npm run drill -- 17-02 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 17-02 --prepare`，编辑 `practice/steps/17-02.ts`，再运行 `npm run drill -- 17-02 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -92,7 +96,7 @@ function isDone(value: unknown): value is boolean { return Boolean(value); }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function isDone(value: unknown): value is boolean { return typeof value === "boolean"; }
@@ -108,8 +112,10 @@ Boolean("false") 为 true，强制转换不能替代类型校验。
 
 `as Task[]` 只是对编译器说“相信我”，不会执行检查。类型谓词也要靠函数体真的检查正确，才能支撑它的承诺。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+综合题起点里的 `input as Task[]` 只改变 TS 对这份值的看法，不会遍历字段、去掉空格或拒绝重复编号。错误路径 `[${index}].${field}` 则是运行时的模板字符串，把实际位置与字段拼成文字；这里的方括号是输出格式，不是在读取数组元素。
+
+若用 Set 记住已出现的 id，`new Set()` 创建集合，.has(id) 判断是否见过，.add(id) 放入，不会像数组一样把同一个值重复存很多次。先查 .has，再决定记录重复问题还是加入集合，这个先后顺序也会影响结果。
 
 ##### 就地小练习 17-03 · 最后告诉用户哪一项错了
 
@@ -119,7 +125,7 @@ Boolean("false") 为 true，强制转换不能替代类型校验。
 function issuePath(index: number, field: string): string { return field; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 17-03 --prepare`，编辑 `practice/steps/17-03.ts`，再运行 `npm run drill -- 17-03 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 17-03 --prepare`，编辑 `practice/steps/17-03.ts`，再运行 `npm run drill -- 17-03 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -129,7 +135,7 @@ function issuePath(index: number, field: string): string { return field; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function issuePath(index: number, field: string): string { return `[${index}].${field}`; }
@@ -178,7 +184,7 @@ Array.isArray 后接成 unknown[]，继续逐行收窄。为每行保存 `$[${in
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 这是边界校验与错误建模的组合。静态类型无法替你信任网络或文件内容。完整错误列表让用户一次修正多处数据；明确规范化、重复规则和整体失败策略可以避免业务歧义。
 
@@ -191,7 +197,7 @@ Array.isArray 后接成 unknown[]，继续逐行收窄。为每行保存 `$[${in
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/17.ts)
 

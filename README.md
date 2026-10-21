@@ -1,6 +1,6 @@
 # 从 JavaScript 到 TypeScript：边改边学
 
-一套中文动手课程：60 道就地小练习 + 19 个综合大练习。每段讲解下面直接练一下，做完进入下一段，最后独立完成本关的完整任务。支持 Windows、macOS 和 Linux，使用 Node.js 24 或更高版本。
+一套中文动手课程：82 道就地小练习 + 19 个综合大练习。每段讲解下面直接练一下，做完进入下一段，最后独立完成本关的完整任务。支持 Windows、macOS 和 Linux，使用 Node.js 24 或更高版本。
 
 ## 下载与首次启动
 
@@ -24,11 +24,13 @@ npm run workshop
 
 先进入 **第 02 关**。不要立刻修完整循环，先看 `total = total + 3` 怎样把总数从 0 改成 3，再加 5 怎样得到 8。第二步有逐次变化表；第三步对比“把 total=0 放进循环，每次都会清零”的错误版本。
 
-第 02 关分六段，每段下方都有对应小题，从“加一次”到“有条件地循环”。其余关各三段三题。最后完成专注记录统计器：自己组合循环、条件、计数和平均值，统计 total、count、skipped、average；不再只修改一个比较符号。
+第 02 关有 11 段，从“加一次”逐步到循环、严格比较、并且/或者/取反和默认值。第 03 关有 10 段，先练函数返回值，再练回调、作用域、默认参数与独立计数。第 04、05 关各有 8 段，补上对象复制、跨文件模块和实际调试；其余关各三段。每段都配对应小题，最后完成完整任务。
 
-基础综合题在 `practice/finals/`，完整参考在 `answers/finals/`。原来的 `practice/00.js` 等文件保留；网页已有自定义草稿也保留，想从新综合题脚手架开始时，可先下载旧草稿，再点“加载大练习起点”。
+这轮按 MDN 对照优先补基础衔接，新增 22 道小题。第 03 关综合题要创建可接收计算规则、各自记录订单数的工具；第 04 关要重命名并生成摘要，同时保留原数据；第 05 关要在两个文件间实现任务存档。字符串专项、Map/Set、类与 this、日期正则及真实网络请求尚待后续扩展，当前不是 MDN 全量课程。
 
-JS 小题可以直接在网页编辑；TS 小题先在终端准备文件，再用真实编译器检查：
+基础综合题在 `practice/finals/`，完整参考在 `answers/finals/`。第 03、04、05 关改用新文件，旧版综合题仍保留；打开新文件路径以当前关卡说明为准。原来的 `practice/00.js` 等文件保留；网页已有自定义草稿也保留，想从新综合题脚手架开始时，可先下载旧草稿，再点“加载大练习起点”。
+
+普通 JS 小题可以直接在网页编辑；模块小题 05-04、05-05、断点小题 05-08 和 TS 小题在本地完成。先准备文件，再运行检查：
 
 ```sh
 npm run drill -- 08-01 --prepare
@@ -36,9 +38,11 @@ npm run drill -- 08-01 --prepare
 npm run drill -- 08-01 --check
 ```
 
-小题文件与原练习独立，重复准备不会覆盖修改。网页小题草稿单独保存在此浏览器，当前主挑战的导出备份不包含它们；如需迁移，请复制代码到本地文件。本地 `practice/steps/` 不提交 Git、不进入课程包。
+小题文件与原练习独立，重复准备不会覆盖修改。网页小题草稿单独保存在此浏览器，当前主挑战的导出备份不包含它们；如需迁移，请复制代码到本地文件。本地 `practice/steps/` 不提交 Git、不进入课程包。模块小题的 prepare 会同时创建入口和配套文件，重复执行保留每份文件的修改。第 05 关综合题在 `practice/finals/05-storage/` 本地编辑：`storage.js` 写工具，`main.js` 导入使用，然后执行 `npm run lab -- 05 --check`。这些本地文件也需要单独备份。
 
 想先建立知识地图，打开 [概念导航](reference/概念导航.md)：从程序与运行环境、变量和表达式，逐步到函数、对象引用、异步、TS 类型与泛型，再进入进阶挑战的闭包、竞态、并发和事件类型。
+
+遇到“这个符号为什么这样写”，可查 [基础语法检查与说明位置](reference/基础语法检查.md)，它列出了 19 关的语法说明和参考资料。
 
 ## 现在就动手：完成时长计算面板
 
@@ -93,9 +97,9 @@ npm run concept -- 08 --local
 | [00](lessons/00-开始之前.md) | 给自己做一张学习卡 | 变量、字符串、输出 |
 | [01](lessons/01-变量和值.md) | 修好学习时长计算器 | 字符串转换、数字计算 |
 | [02](lessons/02-条件和循环.md) | 找出漏掉的专注记录 | 条件、循环、边界 |
-| [03](lessons/03-函数和作用域.md) | 修好咖啡结账函数 | 函数、参数、返回值 |
-| [04](lessons/04-数组和对象.md) | 筛出真正还没完成的任务 | 对象、数组、filter / map |
-| [05](lessons/05-模块和错误.md) | 给坏掉的存档加一层保护 | JSON、异常、结构检查 |
+| [03](lessons/03-函数和作用域.md) | 创建会记订单数的结账工具 | 函数、回调、作用域与闭包 |
+| [04](lessons/04-数组和对象.md) | 重命名任务并生成摘要 | 数组、对象复制、filter / map |
+| [05](lessons/05-模块和错误.md) | 跨文件读写任务存档 | 模块、JSON、异常与断点调试 |
 | [06](lessons/06-异步编程.md) | 等到外卖到了再拆袋 | Promise、await、失败处理 |
 | [07](lessons/07-浏览器和DOM.md) | 让页面显示剩余任务数 | DOM、事件、重新渲染 |
 | [08](lessons/08-进入TypeScript.md) | 让编译器拦住错误的加法 | 编译与静态类型检查 |
@@ -114,7 +118,7 @@ flowchart LR
   F --> G[任务管理项目]
 ```
 
-建议每课分两次学，每次约 30～45 分钟；这是节奏参考，不是期限。第 01～06 课不依赖浏览器，第 07 课单独体验浏览器，第 08 课再开始使用编译器。
+建议每课分两次学，每次约 30～45 分钟；这是节奏参考，不是期限。第 01～06 课的 Node 练习不依赖浏览器，第 07 课单独体验浏览器，第 08 课再开始使用编译器。
 
 ## 怎么使用这些文件
 
@@ -153,7 +157,7 @@ node examples/js/01-values.js
 | `npm run lab -- 01 --check` | 检查本地第 01 关 |
 | `npm run drill -- 02-01 --prepare` | 创建某一道小题，不覆盖已有文件 |
 | `npm run drill -- 02-01 --check` | 检查这道小题的本地代码 |
-| `npm run verify:drills` | 核对全部 60 道小题的起点和参考写法 |
+| `npm run verify:drills` | 核对全部 82 道小题的起点和参考写法 |
 | `npm run verify:labs` | 验证全部可执行关卡的起始问题和参考解法，不修改你的练习 |
 | `npm run verify:advanced` | 只验证进阶题的起始问题和参考答案 |
 | `npm run test:workshop` | 检查备份合并、运行反馈、命令行验收和课程文件服务 |
@@ -177,13 +181,13 @@ node examples/js/01-values.js
 
 ## 资料与范围
 
-教学内容为本地编写的渐进示例。基础概念可交叉查阅 [MDN JavaScript 学习模块](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting)、[TypeScript 入门说明](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html) 和 [TypeScript 类型收窄](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)。链接于 2026-10-15 查阅。
+教学内容为本地编写的渐进示例。基础概念可交叉查阅 [MDN JavaScript 学习模块](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting)、[TypeScript 入门说明](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html) 和 [TypeScript 类型收窄](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)。另参考 [MDN 中文 JavaScript 指南](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide) 的主题结构，于 2026-10-20 对照当前课程。示例与练习为本课程原创组织。
 
 本教程先建立语言和运行机制基础。React、Vue、装饰器、构建工具生态以及复杂条件类型留到后续；无需在开始阶段同时学习。
 
 维护者可运行 `python3 scripts/package-windows.py` 重新生成 `exports/typescript-windows-latest.zip` 和校验值。该命令只收集课程目录，排除依赖和临时文件；学习者运行课程不需要 Python。
 
-维护流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。GitHub Actions 会在 Windows/Linux、Node.js 24/26 上检查概念、示例、工具、主挑战及 60 道小题；浏览器 DOM 操作另行检查。
+维护流程见 [CONTRIBUTING.md](CONTRIBUTING.md)。GitHub Actions 会在 Windows/Linux、Node.js 24/26 上检查概念、示例、工具、主挑战及 82 道小题；浏览器 DOM 操作另行检查。
 
 ## 常见问题
 

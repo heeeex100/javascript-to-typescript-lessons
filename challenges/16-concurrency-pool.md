@@ -7,11 +7,9 @@
 
 ### 先控制什么时候启动，再限制同时做几件
 
-想一次最多做两项任务，第一件事不是学复杂 Promise API，而是确认：工作有没有在你排队之前就开始。先把“动作”和“动作的结果”分开。
+要让任务排队，就得控制它什么时候开始。如果创建列表时已经调用了所有异步函数，它们可能已经在执行，之后再限制等待数量也来不及了。
 
 #### 1 · 先把启动动作推迟
-
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```js
 const events = [];
@@ -35,6 +33,10 @@ map(start => start()) 这一步才依次调用它们，每个函数开始时往 
 完整并发池要保留原始下标：第 2 项先结束，也把它写回结果[1]，不要因为完成早就放在结果[0]。
 
 
+`id => async () => { ... }` 有两层函数：外层被 map 调用，收到 id；它返回内层的异步函数，内层参数列表为空，所以保留 ()。map 完成后得到一组尚未启动的函数。把它展开为“外层普通函数返回一个 async 函数”，行为相同，不能把两层当成一次调用。
+
+jobs.map(job => job()) 中，job 是当前取出的函数，后面的 () 真正启动它。Promise.all 收集这些已启动操作的结果，不会根据名字自动排队。Promise.allSettled 的 fulfilled/rejected 是固定状态字符串，使用普通引号；它们不是 JS 关键字。
+
 ##### 就地小练习 16-01 · 先把启动动作推迟
 
 tasks 里应存函数。第一次调用前 started 为 0，调用第一项后变成 1。
@@ -54,7 +56,7 @@ const tasks=[(() => { started+=1; return Promise.resolve(1); })()];
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 let started=0;
@@ -73,8 +75,10 @@ const tasks=[() => { started+=1; return Promise.resolve(1); }];
 
 在纸上画上限 2：A、B 先开始；B 先结束就立刻让 C 补位，不用等 A。这和每两个一批、全部结束后再开下一批不同。
 
-如果要保留自己的实验，先运行 `npm run concept -- 16 --prepare`，修改创建的文件，再用 `npm run concept -- 16 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+参考实现中的 `while (next < jobs.length) { ... }` 在每次循环开始前重新判断条件，条件为假就结束，与“每个元素都取一次”的 for...of 写法不同。`const index = next++` 先把旧 next 保存到 index，再让 next 加 1；`active--` 则减 1。
+
+`results[index] = ...` 按原位置保存，results.push(...) 按完成顺序追加，二者会产生不同顺序。`new Array(jobs.length)` 创建指定长度、尚未填入元素的数组，不会自动生成对应任务或结果；还需要逐项写入。`Array.from({length:n}, () => worker())` 才是按长度调用回调、创建 n 个 worker 的操作。
 
 ##### 就地小练习 16-02 · 再把失败变成可保存的结果
 
@@ -94,7 +98,7 @@ try 同时包住调用 task 和 await 等待。
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 async function settle(task) { try { return {status:"fulfilled",value:await task()}; } catch(reason) { return {status:"rejected",reason}; } }
@@ -109,8 +113,6 @@ async function settle(task) { try { return {status:"fulfilled",value:await task(
 多项操作的等待区间相互重叠叫**并发**，并不表示 JS 算术一定在多核上同时做。
 
 这里的任务工厂就是“调用才开始工作”的函数。Promise.all / allSettled 帮你收集结果，本身不替你控制启动数量。
-
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
 
 ##### 就地小练习 16-03 · 完成顺序不同也能按原顺序放
@@ -134,7 +136,7 @@ index 已经记录了这项在输入中的位置。
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 const results=[];
@@ -185,7 +187,7 @@ jobs 必须是函数数组。如果先把所有 job() 调完，之后就无法�
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 Promise.allSettled 汇总每项成功或失败的结果；并发限制还需要控制任务何时启动。索引保存输入顺序，worker 控制活跃数量，逐项 catch 保证失败隔离。本关检查用手动释放的 Promise 控制顺序，不靠精确毫秒计时。
 
@@ -198,7 +200,7 @@ Promise.allSettled 汇总每项成功或失败的结果；并发限制还需要�
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/16.js)
 

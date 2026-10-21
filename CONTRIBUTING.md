@@ -15,14 +15,14 @@ npm run verify:drills
 
 verify 包含概念同步检查、18 个概念例子的真实执行与预期输出核对、TS 编译、项目/示例行为检查及实验台自动化测试。verify:labs 使用内置起始代码及参考答案，检查起始问题确实被发现、正确解法确实通过；不读取学习者已完成的答案来判断起始题是否失败。
 
-verify:drills 另行检查 60 道小题的起点应失败、参考写法应通过。GitHub Actions 在 Windows/Linux、Node.js 24/26 上执行以上命令。浏览器 DOM 第 07 关和页面交互仍需人工或浏览器自动化确认，命令行通过不代表 UI 已验证。
+verify:drills 另行检查 82 道小题的起点应失败、参考写法应通过。GitHub Actions 在 Windows/Linux、Node.js 24/26 上执行以上命令。浏览器 DOM 第 07 关和页面交互仍需人工或浏览器自动化确认，命令行通过不代表 UI 已验证。
 
 ## 修改概念与题目
 
 - 概念原稿：reference/foundations/00.md 到 18.md。每个 `####` 标题是一段讲解，结尾用 `<!-- drill:02-01 -->` 指定就地小题；与 drills.js 中 teachingStep 对应。每段必须且只能对应一道小题，同步检查会核对关系。第一个 js/ts/html 代码块由 concept 命令独立运行。修改后运行 `npm run sync:concepts`。
-- 小题原稿：workshop/drills.js。每题包含单一目标、起点、检查、提示、参考写法与解释；讲义中的小题由同步脚本生成。小题草稿使用独立浏览器存储和 practice/steps 文件，不覆盖主挑战。
+- 小题原稿：workshop/drills.js。每题包含单一目标、起点、检查、提示、参考写法与解释；讲义中的小题由同步脚本生成。小题草稿使用独立浏览器存储和 practice/steps 文件，不覆盖主挑战。跨文件小题设置 local:true、files（相对入口目录的配套源码），prepare 逐文件以 wx 创建，重复准备不覆盖；验收在临时目录使用本地配套文件，--starter/--answer 使用内置起点。调试题可提供 debugCommand 和 localNote。
 - 如果示例的预期输出有意改变，同时更新 checks/concepts.mjs 中对应预期，并确认正文中的解释相符。
-- 原基础题目数据：workshop/labs.js；新的基础综合题由 workshop/finals.js 覆盖，文件位于 practice/finals 与 answers/finals。进阶综合题沿用 workshop/advanced-labs.js 的完整合同。调整验收时同步题目说明、脚手架与参考解法。
+- 原基础题目数据：workshop/labs.js；新的基础综合题由 workshop/finals.js 覆盖，文件位于 practice/finals 与 answers/finals。进阶综合题沿用 workshop/advanced-labs.js 的完整合同。调整验收时同步题目说明、脚手架与参考解法。新版综合题尽量创建新文件，保留旧版与学习者修改。多文件综合题通过 files 提供起点，supportAnswers 指向配套参考文件；local:true 表示需本地编辑，网页只预览入口。
 - 学习者的 `practice/concepts/` 是独立实验，不提交 Git，也不进入课程压缩包。不要为了让测试通过而替学习者填写 practice 或 exercises。
 - `.cmd` 文件保持 CRLF，其他文本使用 LF；.gitattributes 会在检出时处理。
 

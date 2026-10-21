@@ -7,11 +7,9 @@
 
 ### 先让函数记住上次，再谈撤销
 
-撤销需要记得上一份内容。先别直接写完整历史系统，先看返回的函数为什么还能记得自己的数字，再看最近的历史放在哪里。
+撤销需要记得上一份内容。计数器需要记住上一次的数字，撤销工具需要记住上一个版本，两者都要在多次调用之间保留数据。
 
 #### 1 · 先让函数记住上次的数
-
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```js
 function createCounter() {
@@ -54,7 +52,7 @@ function createCounter() { return () => { let value=0; value+=1; return value; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function createCounter() { let value=0; return () => { value+=1; return value; }; }
@@ -66,14 +64,14 @@ function createCounter() { let value=0; return () => { value+=1; return value; }
 
 #### 2 · 再拿最近的一份历史
 
-先把 value=0 移进返回的小函数，观察 a 两次都变成 1。再移回原处，恢复 1、2。这一轮只理解“在哪里创建、什么时候创建”。
+先把 value=0 移进返回的小函数，观察 a 两次都变成 1。再移回原处，恢复 1、2。value 放在不同位置，初始化的次数就不同。
 
 接着在纸上写 A→B→C。撤销一次回 B：C 放进可重做列表；再修改成 D，路线变成 A→B→D，旧路线 C 就应清掉。
 
 最后想一个问题：如果三份历史其实都指着同一个可变数组，改一份会不会把过去也改了？回看第 12 关的复制实验。
 
-如果要保留自己的实验，先运行 `npm run concept -- 14 --prepare`，修改创建的文件，再用 `npm run concept -- 14 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+小题中的 history.at(-1) 读取最后一项，不会删除它；history.pop() 既读取又删除，二者对历史列表的影响不同。at(-2) 是倒数第二项，空数组 at(-1) 得到 undefined。不要把它写成 history[-1]，普通方括号中的 -1 是属性名，不会按“倒数第一项”来读取数组元素。
 
 ##### 就地小练习 14-02 · 再拿最近的一份历史
 
@@ -93,7 +91,7 @@ function latest(history) { return history[0]; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function latest(history) { return history.at(-1); }
@@ -109,8 +107,10 @@ function latest(history) { return history.at(-1); }
 
 past、present、future 只是过去、现在、可重做三份状态的命名。先把每次操作前后这三份内容写清楚，再动手实现。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+综合题返回对象里的 `set(next) { ... }` 是方法简写，大致可以展开为 `set: function(next) { ... }`；`get: () => value` 则是字段名 get 后面放一个箭头函数。这里的 get 是普通方法名，调用 history.get() 才拿到值，不是 JS 的 getter 声明。
+
+past.push(value) 往末尾放一项，past.pop() 取出并删除最后一项；空数组 pop() 返回 undefined。`future.length = 0` 是实际清空这个数组，不是创建新数组。参考解法里的 Object.is 用于判断两次值是否相同：与 === 很接近，但 Object.is(NaN,NaN) 为 true，且它区分 0 与 -0。
 
 ##### 就地小练习 14-03 · 做新修改就放弃旧未来
 
@@ -130,7 +130,7 @@ function edit(state,value) { return {past:[...state.past,state.present],present:
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function edit(state,value) { return {past:[...state.past,state.present],present:value,future:[]}; }
@@ -177,7 +177,7 @@ npm run lab -- 14 --check
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 闭包让多个方法访问同一份私有状态。撤销是状态转移而非简单“减一”；新编辑会产生新的历史分支。明确 Object.is 和对象引用约定可以避免暗含的深拷贝期待。
 
@@ -190,7 +190,7 @@ npm run lab -- 14 --check
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/14.js)
 

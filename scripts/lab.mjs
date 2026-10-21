@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync, existsSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -25,9 +25,13 @@ if (!lesson || selections.length !== 1 || invalidArgs || (args.includes("--answe
   process.exit(args.length === 0 ? 0 : 1);
 }
 if (drillMode && args.includes("--prepare")) {
-  mkdirSync(join(root, "practice/steps"), { recursive: true });
-  try { writeFileSync(join(root, lesson.file), lesson.starter, { flag: "wx" }); }
-  catch (error) { if (error.code !== "EEXIST") throw error; console.log("文件已存在，保留你的修改。"); }
+  const prepared = { [lesson.file]: lesson.starter };
+  for (const [name, source] of Object.entries(lesson.files ?? {})) prepared[join(dirname(lesson.file), name)] = source;
+  for (const [file, source] of Object.entries(prepared)) {
+    mkdirSync(dirname(join(root, file)), { recursive: true });
+    try { writeFileSync(join(root, file), source, { flag: "wx" }); }
+    catch (error) { if (error.code !== "EEXIST") throw error; console.log(`${file} 文件已存在，保留你的修改。`); }
+  }
   console.log(`编辑 ${lesson.file}，保存后运行 npm run drill -- ${id} --check`);
   process.exit(0);
 }
@@ -49,6 +53,13 @@ console.log(`\n第 ${lesson.id} 关 · ${lesson.title}\n读取：${sourcePath}`)
 let status = 0;
 try {
   writeFileSync(join(stage, "package.json"), '{"type":"module"}');
+  for (const [name, fallback] of Object.entries(lesson.files ?? {})) {
+    const local = join(root, dirname(lesson.file), name);
+    const content = answer && lesson.supportAnswers?.[name] ? readFileSync(join(root, lesson.supportAnswers[name]), "utf8") :
+      !answer && !args.includes("--starter") && existsSync(local) ? readFileSync(local, "utf8") : fallback;
+    mkdirSync(dirname(join(stage, name)), { recursive: true });
+    writeFileSync(join(stage, name), content);
+  }
   const entry = join(stage, `main.${lesson.lang}`);
   // 保持学习代码在文件开头，错误行号能对应到本关文件。
   writeFileSync(entry, source + helper + checks + (checking ? `\nconsole.log(${JSON.stringify(marker)});\n` : ""));
@@ -86,7 +97,7 @@ try {
     } else if (checking) {
       console.log("挑战通过：本关验收全部成立。");
     } else {
-      console.log(`\n再试：npm run lab -- ${lesson.id} --check`);
+      console.log(`\n再试：npm run ${drillMode ? "drill" : "lab"} -- ${lesson.id} --check`);
     }
   }
 } finally {

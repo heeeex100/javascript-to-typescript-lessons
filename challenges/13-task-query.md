@@ -7,11 +7,9 @@
 
 ### 先筛选，再排序，最后只取一页
 
-把任务查询想成整理一摞卡片：先留下符合条件的卡，再按顺序排好，最后拿出某一页。先不把所有功能写进一条长表达式。
+把任务查询想成整理一摞卡片：先留下符合条件的卡，再按顺序排好，最后拿出某一页。筛选、排序、分页各产生一份结果，打印中间数组就能看到哪一步处理错了。
 
 #### 1 · 先把数字排对
-
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```js
 const durations = [12, 3, 25, 8];
@@ -34,6 +32,10 @@ durations 起初是 [12,3,25,8]。filter 留下 >=8 的数，所以 matched 是 
 matched.length 是筛选后的全部条数 3，不能因为当前页只有一个就说全部只有一个。原输入 durations 也应保持原顺序。
 
 
+sort 接收的比较函数返回负数表示 a 应在 b 前，正数表示 a 应在 b 后，0 表示本次比较看作相等；不是返回 true 才保留元素。`(a,b) => a-b` 因此适用于数字升序，`b-a` 是降序。
+
+sort 会修改调用它的数组；slice 返回另一份数组，不会删掉原元素。`slice(start,end)` 的第二个数字是结束下标且不包含它，不是“取多少个”。本关先复制再排序，是为了保留调用者的数据，不是排序语法必须多写一对方括号。
+
 ##### 就地小练习 13-01 · 先把数字排对
 
 返回数字升序，保留输入顺序。
@@ -52,7 +54,7 @@ function sorted(values) { return values.sort(); }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function sorted(values) { return [...values].sort((a,b)=>a-b); }
@@ -69,8 +71,6 @@ function sorted(values) { return [...values].sort((a,b)=>a-b); }
 再手算 page=3、size=2 的起点：(3-1)×2=4。把 size 改为 1，列出前三页各有什么。
 
 最后才组合关键词、完成状态、排序、分页，并用一个非常小的输入逐步打印每个中间结果。
-
-如果要保留自己的实验，先运行 `npm run concept -- 13 --prepare`，修改创建的文件，再用 `npm run concept -- 13 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
 
 ##### 就地小练习 13-02 · 再只取一页
@@ -91,7 +91,7 @@ slice 的第二个参数是结束位置，不是取几条。
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function pageOf(items,page,size) { return items.slice((page-1)*size,page*size); }
@@ -107,8 +107,10 @@ function pageOf(items,page,size) { return items.slice((page-1)*size,page*size); 
 
 先知道每步产生哪份数组，再决定边界值和总数，避免只看最后一页来猜哪一步出错。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+参考排序规则 b.priority - a.priority || a.id - b.id 使用了第 02 关的短路规则：优先级不同，第一个差值不是 0，就用它；优先级相同时差值为 0，才用 id 差值作为第二条规则。可以展开成 if 判断，得到同样的排序，不是把两个比较结果做加法。
+
+字符串的 .toLowerCase() 返回小写版本，.includes(keyword) 检查是否包含子串；数组的 .includes(value) 检查是否包含某个元素，是同名的不同方法。标题搜索先统一大小写再判断，才不会把 JS 与 js 当作不同关键词。
 
 ##### 就地小练习 13-03 · 总条数要在分页前数
 
@@ -128,7 +130,7 @@ function result(items) { const page=items.slice(0,2); return {items:page,total:p
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function result(items) { const page=items.slice(0,2); return {items:page,total:items.length}; }
@@ -176,7 +178,7 @@ npm run lab -- 13 --check
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 这是一个数据查询管道：把小步骤组合成业务行为。分页不该影响总数；排序要有明确的同分规则；不可变更新使原数据能继续给其他视图使用。
 
@@ -189,7 +191,7 @@ npm run lab -- 13 --check
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/13.js)
 

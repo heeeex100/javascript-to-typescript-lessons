@@ -7,11 +7,9 @@
 
 ### 在运行前，就提醒你传错了东西
 
-第 01 关你见过文字与数字混算。现在我们给函数写一句更明确的要求：“这个位置只接收数字”。先看约定如何被检查，再看真正的转换发生在哪。
+第 01 关你见过文字与数字混算。现在我们给函数写一句更明确的要求：“这个位置只接收数字”。类型注解负责检查要求，Number 负责转换实际的值。
 
 #### 1 · 先读懂参数类型
-
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
 
 ```ts
 function twice(value: number): number {
@@ -34,6 +32,12 @@ text 存的是带引号的 "6"。`Number(text)` 这一步才真正把文字读�
 最后的 `//` 表示这一行是注释，目前不执行。取消注释后，twice(text) 把文字传到要求数字的位置，编译器就会指出错误。
 
 
+**冒号是要求，等号是赋值**
+
+`const count: number = 3` 中，count 是变量名，冒号后 number 是类型要求，等号后 3 才是实际保存的值。生成 JS 后相当于 `const count = 3`，类型写法不参与这次赋值。这里的类型注解 number 不会创建同名变量，不能因此直接用 console.log(number) 打印它；作为类型时也不要随意改成大写 Number，后者描述的是包装对象类型，普通数字使用小写 number。
+
+很多注解可以省略：`const count = 3` 已让 TS 推断出数字类型，函数 `function double(value: number) { return value * 2; }` 的返回类型也能推断。注解不是越多越安全，明确参数要求和需要约束的结果即可。相反，JS 文件里直接写 `value: number` 会是语法错误，这套类型语法属于 TS。
+
 ##### 就地小练习 08-01 · 先读懂参数类型
 
 add 只收数字。在调用处转换 text，保留函数参数的 number。
@@ -44,7 +48,7 @@ const text = "6";
 const result = add(text, 2);
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 08-01 --prepare`，编辑 `practice/steps/08-01.ts`，再运行 `npm run drill -- 08-01 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 08-01 --prepare`，编辑 `practice/steps/08-01.ts`，再运行 `npm run drill -- 08-01 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -54,7 +58,7 @@ const result = add(text, 2);
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function add(a: number, b: number): number { return a + b; }
@@ -72,9 +76,7 @@ const result = add(Number(text), 2);
 
 接着保留错误调用，把类型改为 any，虽然可能不报错，但你也失去这条保护。恢复 number，在调用位置做 Number(text)，让数据本身满足要求。
 
-本课程的命令依次做：检查 .ts → 生成 .js → Node.js 运行 .js。检查失败就先停下来，修好后再执行。不需要初学时自己管理临时编译目录。
-
-如果要保留自己的实验，先运行 `npm run concept -- 08 --prepare`，修改创建的文件，再用 `npm run concept -- 08 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
+本课程的命令依次做：检查 .ts → 生成 .js → Node.js 运行 .js。类型检查失败时，命令不会继续运行这份代码。
 
 
 ##### 就地小练习 08-02 · 再给函数写清输入输出
@@ -85,7 +87,7 @@ const result = add(Number(text), 2);
 function twice(value): number { return value * 2; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 08-02 --prepare`，编辑 `practice/steps/08-02.ts`，再运行 `npm run drill -- 08-02 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 08-02 --prepare`，编辑 `practice/steps/08-02.ts`，再运行 `npm run drill -- 08-02 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -95,7 +97,7 @@ function twice(value): number { return value * 2; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function twice(value: number): number { return value * 2; }
@@ -111,8 +113,8 @@ function twice(value: number): number { return value * 2; }
 
 类型描述会在生成 JS 时被去掉，不能替你验证网络或文件里来的真实内容。`as` 也不会转换值；需要转换就写实际转换，需要拒绝非法输入就写实际判断。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+`as` 是类型断言，不是解析或转换命令。写 `input as number` 并不会调用 Number，也不会检查“这是有限非负数字吗”。第 01 关的 Number.isFinite 和负数判断仍然需要。静态检查保护的是 TS 能追踪的使用方式，不能替代处理真实输入的代码。
 
 ##### 就地小练习 08-03 · 返回值也要真的符合类型
 
@@ -122,7 +124,7 @@ read 的返回类型是 number，但现在返回文字。修好实现。
 function read(text: string): number { return text; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 08-03 --prepare`，编辑 `practice/steps/08-03.ts`，再运行 `npm run drill -- 08-03 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 08-03 --prepare`，编辑 `practice/steps/08-03.ts`，再运行 `npm run drill -- 08-03 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -132,7 +134,7 @@ function read(text: string): number { return text; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 function read(text: string): number { return Number(text); }
@@ -180,7 +182,7 @@ npm run lab -- 08 --check
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 第 01 课的拼接问题，这次在执行前被发现。: number 是类型约束，不是转换动作。命令先用真实 tsc 检查并生成 JS，成功后才执行。
 
@@ -193,7 +195,7 @@ npm run lab -- 08 --check
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/finals/08.ts)
 

@@ -11,8 +11,6 @@
 
 #### 1 · 先看两次调用如何编号
 
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
-
 ```js
 let finishOld;
 const oldRequest = new Promise(resolve => { finishOld = resolve; });
@@ -34,6 +32,10 @@ newView 先拿到“新结果”并输出。await newView 之后，我们才调�
 解决线索是给每次发起分配序号。比如旧请求为 1，新请求为 2。完成时问“我还是最新的 2 吗”，不是就不改页面。
 
 
+`let finishOld;` 允许先声明而不赋值，此刻是 undefined。new Promise 中的函数会在创建时立即执行，把本次的 resolve 保存给 finishOld；只有之后调用 finishOld 才让这个 Promise 成功。若在保存前就试图调用这个变量，会因它不是函数而失败。
+
+`.then(value => ...)` 注册成功时的回调，方法本身返回另一个 Promise。这里 oldView 等待的是日志回调完成后的结果；只写 .then 而不加调用括号，不会注册回调。`++latest` 和 `latest++` 都会加 1，但前者交回新值，后者交回旧值，赋给 requestId 时要看清楚差别。
+
 ##### 就地小练习 15-01 · 先看两次调用如何编号
 
 同一工厂每次 next 得到 1、2；第二个工厂独立。
@@ -52,7 +54,7 @@ function createIds() { return () => { let id=0; return ++id; }; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function createIds() { let id=0; return () => ++id; }
@@ -70,8 +72,10 @@ function createIds() { let id=0; return () => ++id; }
 
 最后把两个关键词写成一样，仍用不同序号区分。仅比较关键词会把两次不同的请求混在一起。
 
-如果要保留自己的实验，先运行 `npm run concept -- 15 --prepare`，修改创建的文件，再用 `npm run concept -- 15 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+综合题用 new Map() 保存“关键词 → 对应的完成函数”。pending.set(query,resolve) 放进去，pending.get(query) 按关键词取出；找不到键时返回 undefined。Map 是运行时的数据容器，和数组的 .map 转换方法不是同一个东西。
+
+`pending.get("JS")(["结果"])` 可以拆成 `const finish = pending.get("JS"); finish(["结果"]);`：第一对括号调用 get，第二对括号调用取出的函数。若关键词拼错，get 拿到 undefined，第二次调用就会失败。这个示例为每个关键词只保留一份完成函数；完整搜索是否过期，仍要按请求序号判断。
 
 ##### 就地小练习 15-02 · 再判断结果是否过期
 
@@ -91,7 +95,7 @@ function mayRender(requestId,latestId) { return true; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function mayRender(requestId,latestId) { return requestId === latestId; }
@@ -107,8 +111,8 @@ function mayRender(requestId,latestId) { return requestId === latestId; }
 
 忽略旧结果并不意味着已经取消网络请求。防抖可以减少发起次数，但不能保证已经发出去的请求按顺序完成。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+catch 收到的不一定是 Error，JS 也允许 throw 一个字符串或其他值。参考写法 error instanceof Error ? error.message : String(error) 检查是否为 Error 或其子类的实例：是就取 message，否则转成可显示文字。instanceof 是运行时运算符，不是 TS 的类型断言；写 typeof error === "object" 不能代替它，因为 null 等其他值也会得到 object。
 
 ##### 就地小练习 15-03 · 失败也要检查身份
 
@@ -128,7 +132,7 @@ function errorText(requestId,latestId) { return "请求失败"; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function errorText(requestId,latestId) { return requestId===latestId ? "请求失败" : null; }
@@ -176,7 +180,7 @@ npm run lab -- 15 --check
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 await 只保证单条异步流程内部的先后，不会保证多次调用的完成顺序。这是竞态条件。请求序号把“最后发起的用户意图”与“最后完成的请求”区分开，错误分支也必须遵守相同约定。
 
@@ -189,7 +193,7 @@ await 只保证单条异步流程内部的先后，不会保证多次调用的�
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/15.js)
 

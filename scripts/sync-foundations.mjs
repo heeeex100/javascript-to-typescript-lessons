@@ -21,7 +21,8 @@ async function update(relative, expected) {
   await writeFile(file, expected);
 }
 function drillMarkdown(item) {
-  return `##### 就地小练习 ${item.id} · ${item.title}\n\n${item.prompt}\n\n\`\`\`${item.lang}\n${item.starter.trim()}\n\`\`\`\n\n网页中在这一段下面直接练习。本地运行 \`npm run drill -- ${item.id} --prepare\`，编辑 \`${item.file}\`，再运行 \`npm run drill -- ${item.id} --check\`。\n\n<details>\n<summary>一点提示</summary>\n\n${item.hint}\n\n</details>\n\n<details>\n<summary>试过后再看解释</summary>\n\n\`\`\`${item.lang}\n${item.answer.trim()}\n\`\`\`\n\n${item.explanation}\n\n</details>`;
+  const companions = Object.entries(item.files ?? {}).map(([name, source]) => `\n\n配套文件 ${name}：\n\n\`\`\`js\n${source.trim()}\n\`\`\``).join("");
+  return `##### 就地小练习 ${item.id} · ${item.title}\n\n${item.prompt}\n\n\`\`\`${item.lang}\n${item.starter.trim()}\n\`\`\`${companions}\n\n${item.local || item.lang === "ts" ? "本题在本地文件中完成，网页提供起点预览。" : "网页中在这一段下面直接练习。"}本地运行 \`npm run drill -- ${item.id} --prepare\`，编辑 \`${item.file}\`，再运行 \`npm run drill -- ${item.id} --check\`。\n\n<details>\n<summary>一点提示</summary>\n\n${item.hint}\n\n</details>\n\n<details>\n<summary>参考答案与解释</summary>\n\n\`\`\`${item.lang}\n${item.answer.trim()}\n\`\`\`\n\n${item.explanation}\n\n</details>`;
 }
 for (const lab of globalThis.learningLabs) {
   const source = await readFile(path.join(root, "reference", "foundations", `${lab.id}.md`), "utf8");
@@ -37,17 +38,18 @@ for (const lab of globalThis.learningLabs) {
   });
   const interleaved = source.replace(/<!-- drill:(\d{2}-\d{2}) -->/g, (_marker, id) => drillMarkdown(drills.find(d => d.id === id)));
   const answer = lab.answerFile ?? `answers/practice/${lab.id}.${lab.lang}`;
-  const location = lab.lang === "dom"
+  const location = (lab.files ? "本题包含多份文件：" + [lab.file, ...Object.keys(lab.files).map(name => path.posix.join(path.posix.dirname(lab.file), name))].map(file => `[${file}](../${file})`).join("、") + "。请在工具文件中完成实现，再运行入口。\n\n" : "") + (lab.lang === "dom"
     ? `编辑 [${lab.file}](../${lab.file})，在浏览器打开 [综合任务页面](../${lab.page})，保存后刷新。`
-    : `编辑 [${lab.file}](../${lab.file})，在项目根目录执行：\n\n\`\`\`sh\nnpm run lab -- ${lab.id}\nnpm run lab -- ${lab.id} --check\n\`\`\``;
+    : `编辑 [${lab.file}](../${lab.file})，在项目根目录执行：\n\n\`\`\`sh\nnpm run lab -- ${lab.id}\nnpm run lab -- ${lab.id} --check\n\`\`\``);
   const requirements = (lab.requirements ?? [lab.goal]).map(text => `- ${text}`).join("\n");
   const examples = lab.examples ? `\n### 输入与预期结果\n\n${lab.examples}\n` : "";
   const hints = lab.steps.map((text, i) => `${i + 1}. ${text}`).join("\n");
-  const article = `# ${lab.id} · ${lab.title}\n\n本关按“讲解一段 → 就地小练习”学习，最后完成综合大练习。\n\n<!-- foundations:start -->\n## 边看边练\n\n${interleaved.trim()}\n<!-- foundations:end -->\n\n## 综合大练习：${lab.finalTitle}\n\n**${lab.goal}**\n\n### 完成要求\n\n${requirements}\n${examples}\n### 在哪里写、怎么验收\n\n${location}\n\n起点只提供数据或函数外壳，需要自己把本关学过的动作组合起来。已有的旧版 practice 文件仍保留，新的基础综合题使用 practice/finals 目录。网页草稿与本地文件独立。\n\n<details>\n<summary>卡住时，再看解题思路</summary>\n\n${hints}\n\n${lab.hint}\n\n</details>\n\n<details>\n<summary>完成后复盘：这道题用到了什么</summary>\n\n${lab.concept}\n\n</details>\n\n### 完成后再加一个需求\n\n${lab.extension}\n\n扩展不计入本关基础验收。\n\n<details>\n<summary>已经独立尝试，再看完整参考</summary>\n\n[综合大练习参考](../${answer})${lab.answerPage ? ` · [参考页面](../${lab.answerPage})` : ""}\n\n</details>\n\n[返回教学目录](../README.md)。\n`;
+  const supportReferences = Object.entries(lab.supportAnswers ?? {}).map(([name, file]) => ` · [${name} 的参考实现](../${file})`).join("");
+  const article = `# ${lab.id} · ${lab.title}\n\n本关按“讲解一段 → 就地小练习”学习，最后完成综合大练习。\n\n<!-- foundations:start -->\n## 边看边练\n\n${interleaved.trim()}\n<!-- foundations:end -->\n\n## 综合大练习：${lab.finalTitle}\n\n**${lab.goal}**\n\n### 完成要求\n\n${requirements}\n${examples}\n### 在哪里写、怎么验收\n\n${location}\n\n起点只提供数据或函数外壳，需要自己把本关学过的动作组合起来。已有的旧版 practice 文件仍保留，新的基础综合题使用 practice/finals 目录。网页草稿与本地文件独立。\n\n<details>\n<summary>卡住时，再看解题思路</summary>\n\n${hints}\n\n${lab.hint}\n\n</details>\n\n<details>\n<summary>相关知识</summary>\n\n${lab.concept}\n\n</details>\n\n### 完成后再加一个需求\n\n${lab.extension}\n\n扩展不计入本关基础验收。\n\n<details>\n<summary>参考答案</summary>\n\n[综合大练习参考](../${answer})${supportReferences}${lab.answerPage ? ` · [参考页面](../${lab.answerPage})` : ""}\n\n</details>\n\n[返回教学目录](../README.md)。\n`;
   await update(lab.lesson, article);
 }
 await update("workshop/foundations.js", "// 由 npm run sync:concepts 生成，请编辑 reference/foundations/*.md。\n" +
   "globalThis.WorkshopFoundations = " + JSON.stringify(foundations, null, 2) + ";\n");
 const links = learningLabs.map(lab => `| [${lab.id}](../${lab.lesson}) | ${foundations[lab.id].split("\n")[0].replace(/^### /, "")} | ${learningDrills.filter(d=>d.lesson===lab.id).length} | ${lab.finalTitle} |`).join("\n");
-await update("reference/概念导航.md", `# 学习路线：讲一段，就练一下，最后做综合题\n\n每段讲解正下方都有对应小题，不再集中到最后。做完一小题后可以进入下一段；最后把本关知识组合成一个完整任务。第 02 关有六段，其余关各三段，共 ${learningDrills.length} 道就地小练习和 19 个综合大练习。\n\nJS 在网页里编辑、运行、检查；TS 小题用 npm run drill -- 08-01 --prepare 创建文件，修改后用 npm run drill -- 08-01 --check。综合题用 npm run lab -- 08 --check。基础综合题文件在 practice/finals；旧文件继续保留。\n\n| 关卡 | 先讲什么 | 小题数量 | 最后的综合题 |\n| --- | --- | --- | --- |\n${links}\n`);
+await update("reference/概念导航.md", `# 学习路线：讲一段，就练一下，最后做综合题\n\n每段讲解正下方都有对应小题，不再集中到最后。做完一小题后可以进入下一段；最后把本关知识组合成一个完整任务。各关按知识点安排段数，共 ${learningDrills.length} 道就地小练习和 19 个综合大练习。\n\n普通 JS 小题在网页里编辑、运行、检查；模块、断点与 TS 小题在本地完成。例如 npm run drill -- 05-04 --prepare 会创建两份模块文件，重复准备不覆盖修改；保存后用 npm run drill -- 05-04 --check。综合题用 npm run lab -- 05 --check。基础综合题文件在 practice/finals；旧文件继续保留。\n\n| 关卡 | 先讲什么 | 小题数量 | 最后的综合题 |\n| --- | --- | --- | --- |\n${links}\n`);
 console.log(`已${checking ? "核对" : "同步"} 19 关：${learningDrills.length} 道小题逐段对应，最后是综合大练习。`);

@@ -11,8 +11,6 @@
 
 #### 1 · 先限定合法事件名
 
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
-
 ```ts
 interface Signals {
   saved: { id: number };
@@ -46,7 +44,7 @@ interface Events {saved:{id:number};failed:{message:string}}
 function nameOf(event): keyof Events { return event; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 18-01 --prepare`，编辑 `practice/steps/18-01.ts`，再运行 `npm run drill -- 18-01 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 18-01 --prepare`，编辑 `practice/steps/18-01.ts`，再运行 `npm run drill -- 18-01 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -56,7 +54,7 @@ keyof Events 可以用在参数类型的位置。
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 interface Events {saved:{id:number};failed:{message:string}}
@@ -69,14 +67,16 @@ function nameOf(event: keyof Events): keyof Events { return event; }
 
 #### 2 · 再取这个事件对应的数据类型
 
-先做事件名小题，只允许表中两个名字。再做载荷小题，单独读懂 Events["saved"] 是什么类型。不要一开始就硬读整个泛型方法签名。
+Events["saved"] 对应 saved 后面写的数据类型，例如 { id: number }；把事件名换成 failed，对应的就是另一份内容要求。
 
 接着练取消函数：调用后把“是否启用”从 true 改成 false，再调用一次也安全。
 
 最后画通知过程：本轮开始时有 A、B 两人；通知 A 的过程中取消 B，本关仍通知本轮快照中的 B，下一轮才不再通知它。要先复制这一轮的名单，才能让中途改名单不扰乱当前过程。
 
-如果要保留自己的实验，先运行 `npm run concept -- 18 --prepare`，修改创建的文件，再用 `npm run concept -- 18 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+`listener: (payload: Events[K]) => void` 中，箭头写在类型位置，描述“接收一份载荷的函数”，没有创建或执行函数。运行时的 `payload => console.log(payload)` 才是一个函数值。void 在这种回调类型里表示调用者不应依赖其返回值；并不是 JS 中的一个返回数据。
+
+on 方法最后的 `: () => void` 则说明它返回另一个不接收参数的函数。`const off = bus.on(...)` 保存这份返回值；以后调用 off() 才取消。写 `_event` 的下划线只是普通名字的一部分，常用来表示暂时没用到的参数，不是省略参数的特殊语法。
 
 ##### 就地小练习 18-02 · 再取这个事件对应的数据类型
 
@@ -87,7 +87,7 @@ interface Events {saved:{id:number};failed:{message:string}}
 function savedId(payload): number { return payload.id; }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 18-02 --prepare`，编辑 `practice/steps/18-02.ts`，再运行 `npm run drill -- 18-02 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 18-02 --prepare`，编辑 `practice/steps/18-02.ts`，再运行 `npm run drill -- 18-02 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -97,7 +97,7 @@ function savedId(payload): number { return payload.id; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 interface Events {saved:{id:number};failed:{message:string}}
@@ -114,8 +114,10 @@ Events["saved"] 读的是类型表中的载荷形状，不是运行时数组。
 
 keyof 和类型中的方括号用于描述“事件名与消息数据对应”的约定。先读会具体 saved 例子，再把 saved 替换为类型参数 K。
 
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
+参考实现的 `{ [K in keyof Events]?: Set<...> }` 是映射类型：对 Events 的每个键 K，描述一个可选的集合字段。这段类型不会自己建立任何 Set；实际运行到 new Set() 才创建集合。`buckets[event]` 是运行时按事件名取集合，`Events[K]` 是类型里按事件名取载荷要求。
+
+Set 的 .add 登记值，.delete 移除值，重复加入同一个函数只会留一份。所以参考实现为每次订阅创建独立的包装函数，让同一个监听器登记两次也能分别取消。`[...(buckets[event] ?? [])]` 先用 ?? 选择已有集合或空数组，再用展开生成本轮名单；括号确保默认值选择发生在展开之前。只有明确发出下一次消息，才会使用更新后的订阅集合。
 
 ##### 就地小练习 18-03 · 最后体验取消订阅
 
@@ -126,7 +128,7 @@ let active=true;
 function off(): void { /* 补上取消动作 */ }
 ```
 
-网页中在这一段下面直接练习。本地运行 `npm run drill -- 18-03 --prepare`，编辑 `practice/steps/18-03.ts`，再运行 `npm run drill -- 18-03 --check`。
+本题在本地文件中完成，网页提供起点预览。本地运行 `npm run drill -- 18-03 --prepare`，编辑 `practice/steps/18-03.ts`，再运行 `npm run drill -- 18-03 --check`。
 
 <details>
 <summary>一点提示</summary>
@@ -136,7 +138,7 @@ function off(): void { /* 补上取消动作 */ }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```ts
 let active=true;
@@ -185,7 +187,7 @@ K extends keyof Events 绑定合法事件名；Events[K] 表示对应事件的�
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 泛型在这里表达了事件名和数据之间的联系。映射类型把不同键对应到不同监听器类型。运行时的快照又决定了注册表变更何时生效。@ts-expect-error 用于负向类型验收：预期错误若没有发生，检查反而失败。
 
@@ -198,7 +200,7 @@ K extends keyof Events 绑定合法事件名；Events[K] 表示对应事件的�
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/practice/18.ts)
 

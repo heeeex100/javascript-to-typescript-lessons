@@ -34,7 +34,7 @@ function save() {
 }
 function updateDraftNote() {
   if (!current) return;
-  $("draft-note").textContent = current.lang === "js"
+  $("draft-note").textContent = current.lang === "js" && !current.local
     ? (canSave ? "草稿保存在此浏览器；可下载代码或导出备份。Ctrl / ⌘ + Enter 运行，加 Shift 检查。"
       : "草稿暂时无法保存，关闭前请下载代码或导出备份。")
     : `编辑 ${current.file}；这里显示起始代码，不会随本地修改同步。`;
@@ -57,9 +57,9 @@ function updateLines() {
   $("line-numbers").scrollTop = $("code").scrollTop;
 }
 function updateProgress() {
-  const jsLabs = labs.filter(lab => lab.lang === "js" && Boolean(lab.advanced) === Boolean(current.advanced));
+  const jsLabs = labs.filter(lab => lab.lang === "js" && !lab.local && Boolean(lab.advanced) === Boolean(current.advanced));
   const total = jsLabs.filter(lab => State.isPassed(state, lab)).length;
-  $("progress").textContent = `${current.advanced ? "进阶" : "基础"}网页挑战：${total} / ${jsLabs.length} 关已通过；TS 在终端检查`;
+  $("progress").textContent = `${current.advanced ? "进阶" : "基础"}网页挑战：${total} / ${jsLabs.length} 关已通过；模块与 TS 在终端检查`;
   $("basic-track").setAttribute("aria-pressed", String(!current.advanced));
   $("advanced-track").setAttribute("aria-pressed", String(Boolean(current.advanced)));
   for (const button of $("lessons").children) {
@@ -94,8 +94,8 @@ function select(id, historyMode = "push") {
     });
   $("foundations-panel").open = true;
   $("concept-command").textContent = `npm run concept -- ${current.id}${current.lang === "dom" ? " --prepare" : ""}`;
-  $("language").textContent = current.lang === "ts" ? "TypeScript · 本地编译" : current.lang === "dom" ? "浏览器 DOM" : "JavaScript · 可编辑";
-  const interactive = current.lang === "js";
+  $("language").textContent = current.local ? "JavaScript 模块 · 本地运行" : current.lang === "ts" ? "TypeScript · 本地编译" : current.lang === "dom" ? "浏览器 DOM" : "JavaScript · 可编辑";
+  const interactive = current.lang === "js" && !current.local;
   $("code").readOnly = !interactive;
   const draft = state.drafts[current.id];
   $("code").value = interactive ? (draft === current.legacyStarter ? current.starter : draft ?? current.starter) : current.starter;
@@ -116,9 +116,14 @@ function select(id, historyMode = "push") {
   $("lesson-link").href = "../" + current.lesson;
   $("file-link").href = "../" + (current.lang === "dom" ? current.page : current.file);
   $("file-link").textContent = current.lang === "dom" ? "打开要修改的任务页面 →" : "查看本关练习文件 →";
-  $("local-note").textContent = current.lang === "dom" ? "打开任务页面，在编辑器修改 app.js，保存后刷新观察剩余数量。" : "在编辑器打开练习文件，用终端里的真实 tsc 检查。网页不模拟 TypeScript 编译。";
+  $("local-note").textContent = current.local ? "在编辑器打开下面两份文件：storage.js 编写工具，main.js 导入并运行。本地文件与网页草稿独立；旧版网页草稿仍保留，可通过备份导出。" : current.lang === "dom" ? "打开任务页面，在编辑器修改 app.js，保存后刷新观察剩余数量。" : "在编辑器打开练习文件，用终端里的真实 tsc 检查。网页不模拟 TypeScript 编译。";
+  $("support-files").replaceChildren(...Object.keys(current.files ?? {}).map(name => {
+    const link = document.createElement("a");
+    link.href = "../" + current.file.slice(0, current.file.lastIndexOf("/") + 1) + name;
+    link.textContent = `查看要编辑的 ${name} →`; return link;
+  }));
   $("command").textContent = current.lang === "dom" ? current.file : `npm run lab -- ${current.id}\nnpm run lab -- ${current.id} --check`;
-  $("output").textContent = interactive ? "先猜猜输出，再点击运行。" : "本关的结果在浏览器任务页面或终端中查看。";
+  $("output").textContent = interactive ? "运行结果会显示在这里。" : "本关的结果在浏览器任务页面或终端中查看。";
   setStatus(interactive ? (State.isPassed(state, current) ? "此草稿上次检查通过" : "等你运行") : "切换到实际操作");
   $("next").disabled = current === labs.at(-1);
   $("previous").disabled = current === labs[0];
@@ -132,7 +137,7 @@ function edited() {
   setStatus("代码有改动，输出是上次结果；请重新运行");
 }
 function run(checking) {
-  if (current.lang !== "js") return;
+  if (current.lang !== "js" || current.local) return;
   stop();
   const token = runToken;
   const lab = current;

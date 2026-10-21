@@ -18,6 +18,7 @@ test("CLI 验收识别提前退出和错误参数，正确代码才通过，练�
     await writeFile(join(root, "workshop/finals.js"), "");
     await writeFile(join(root, "workshop/drills.js"), "globalThis.learningDrills=" + JSON.stringify([
       { id: "02-01", title: "只练一步", lang: "js", file: "practice/steps/02-01.js", starter: "const value=0;", answer: "const value=2;", checks: 'check(value===2,"应为2");' },
+      { id: "05-04", title: "真实模块", lang: "js", local: true, file: "practice/steps/05-04/main.js", starter: 'import { bonus } from "./lib/bonus.js"; const value=0;', answer: 'import { bonus } from "./lib/bonus.js"; const value=bonus(1);', files: { "lib/bonus.js": "export const bonus = value => value + 1;" }, checks: 'check(value===2,"需要调用导入的函数");' },
     ]) + ";");
     const execute = args => spawnSync(process.execPath, ["scripts/lab.mjs", ...args], { cwd: root, encoding: "utf8", timeout: 10000 });
     await writeFile(join(root, "practice/01.js"), "process.exit(0);");
@@ -39,5 +40,16 @@ test("CLI 验收识别提前退出和错误参数，正确代码才通过，练�
     assert.equal(await readFile(draft, "utf8"), "const value=2;");
     assert.equal(execute(["--drill", "02-01", "--check"]).status, 0);
     assert.equal(execute(["--drill", "02-01", "--prepare", "--answer"]).status, 1);
+    assert.equal(execute(["--drill", "05-04", "--prepare"]).status, 0);
+    const helper = join(root, "practice/steps/05-04/lib/bonus.js");
+    const main = join(root, "practice/steps/05-04/main.js");
+    await writeFile(main, 'import { bonus } from "./lib/bonus.js"; const value=bonus(1);');
+    assert.equal(execute(["--drill", "05-04", "--check"]).status, 0);
+    await writeFile(helper, "export const bonus = value => value + 10;");
+    assert.equal(execute(["--drill", "05-04", "--prepare"]).status, 0);
+    assert.equal(await readFile(helper, "utf8"), "export const bonus = value => value + 10;");
+    assert.equal(execute(["--drill", "05-04", "--check"]).status, 1, "应检查本地修改过的配套文件");
+    assert.equal(execute(["--drill", "05-04", "--answer", "--check"]).status, 0, "参考验收独立于学习者配套文件");
+    assert.equal(execute(["--drill", "05-04", "--starter", "--check"]).status, 1);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

@@ -282,6 +282,88 @@ for (const [id, assignment] of Object.entries({
   const lab = globalThis.learningLabs.find(item => item.id === id);
   if (lab) Object.assign(lab, { legacyStarter: lab.starter }, assignment, { isFinal: true });
 }
+// 补全基础链后的综合题使用新文件，保留旧版本练习与学习者修改。
+for (const [id, assignment] of Object.entries({
+  "03": {
+    "title": "综合大练习：会记订单数的结账工具",
+    "goal": "组合默认参数、回调和独立状态，创建可复用的结账工具。",
+    "requirements": [
+      "实现 createCheckout(unitPrice = 12, adjust = amount => amount)，返回一个接收 quantity 的结账函数。",
+      "每次结账先计算数量 × 单价，再调用 adjust 一次调整金额，实付小于 0 时按 0。输入数量、单价及调整后的金额均为有效数字。",
+      "返回 {total, orders}；orders 为这个工具已结账的次数，从 1 开始。0 件订单也计一次。",
+      "创建两个工具后订单数互不影响；创建工具时不能先调用 adjust。"
+    ],
+    "starter": "function createCheckout(unitPrice = 12, adjust = amount => amount) {\n  // TODO：创建独立的订单数，返回真正的结账函数。\n}\n// TODO：创建默认工具，再创建一个每单减 3 元的工具；分别结账并打印。\n",
+    "file": "practice/finals/03-checkout.js",
+    "answerFile": "answers/finals/03-checkout.js",
+    "checks": "const a=createCheckout();check(typeof a===\"function\",\"工厂应交回函数，创建时还没下单\");let calls=0;const b=createCheckout(10, amount=>{calls+=1;return amount-3;});check(calls===0,\"规则在结账时调用，不是在创建时调用\");const a1=a(2),b1=b(3),a2=a(0),b2=b(1);check(a1.total===24 && a1.orders===1 && a2.total===0 && a2.orders===2,\"默认价格与同一工具的累计订单数\");check(b1.total===27 && b1.orders===1 && b2.total===7 && b2.orders===2 && calls===2,\"每笔调用一次规则，两个工具独立计数\");check(createCheckout(5,amount=>amount-10)(1).total===0,\"实付最小为 0\");",
+    "examples": "默认工具连续买 2 件、0 件 → {total:24,orders:1}、{total:0,orders:2}；单价 10、每单减 3 的另一个工具买 3 件 → {total:27,orders:1}。",
+    "steps": [
+      "工厂内部声明订单数，这时先不结账。",
+      "返回一个接收 quantity 的函数，在内部计算原价并调用 adjust。",
+      "限制最低金额、增加次数并返回对象；交错调用两个工具验证独立性。"
+    ],
+    "hint": "对照小题 03-05 的 apply 和 03-09 的独立计数，先写普通函数也可以。",
+    "concept": "返回函数让结账动作延后发生；闭包保存每个工具的订单数；回调让计算规则由调用者选择。",
+    "extension": "增加一个会员折扣规则，先打折再减券；保持原结账工具的订单数不受影响。"
+  },
+  "04": {
+    "title": "综合大练习：保留原列表的任务编辑器",
+    "goal": "组合对象复制、按编号更新与列表摘要，保留编辑前的数据。",
+    "requirements": [
+      "实现 renameTasks(tasks,id,title)，返回新数组，只给匹配编号创建新对象并改标题。",
+      "未匹配的对象保留；编号不存在或列表为空时也返回新数组，不修改输入。",
+      "实现 taskSummary(tasks)，返回 {pendingTitles,doneCount,totalCount}；空数组返回空标题与两个 0。",
+      "对重命名后的列表生成摘要，并验证旧列表和旧对象仍保留原来的标题。"
+    ],
+    "starter": "function renameTasks(tasks, id, title) {\n  // TODO：根据编号更新，保留旧数组与对象。\n  return tasks;\n}\nfunction taskSummary(tasks) {\n  // TODO：筛选未完成标题，统计完成与总数量。\n  return { pendingTitles: [], doneCount: 0, totalCount: 0 };\n}\nconst before = [{id:1,title:\"读 JS\",done:false},{id:2,title:\"喝水\",done:true}];\n// TODO：改第一项标题，生成新列表摘要，分别打印新旧列表。\n",
+    "file": "practice/finals/04-editor.js",
+    "answerFile": "answers/finals/04-editor.js",
+    "checks": "const source=Object.freeze([Object.freeze({id:1,title:\"A\",done:false}),Object.freeze({id:2,title:\"B\",done:true})]);const out=renameTasks(source,1,\"C\");check(out!==source && out[0]!==source[0] && out[0].title===\"C\" && out[0].id===1 && out[0].done===false && out[1]===source[1],\"只替换匹配对象，同时保留其他字段与未修改对象\");const missing=renameTasks(source,99,\"D\");check(missing!==source && missing[0]===source[0] && missing[1]===source[1],\"找不到时保留所有项，仍交回新数组\");const emptyInput=[];const emptyOut=renameTasks(emptyInput,1,\"C\");check(emptyOut!==emptyInput && emptyOut.length===0,\"空列表也交回新数组\");const report=taskSummary(out);check(JSON.stringify(report.pendingTitles)==='[\"C\"]' && report.doneCount===1 && report.totalCount===2,\"摘要应来自编辑后的数据\");const empty=taskSummary([]);check(empty.pendingTitles.length===0 && empty.doneCount===0 && empty.totalCount===0,\"空摘要\");check(source[0].title===\"A\",\"旧对象保持不变\");",
+    "examples": "A 未完成、B 完成 → 将 A 改名为 C → 新摘要 pendingTitles=[\"C\"]、doneCount=1、totalCount=2；旧列表仍为 A、B。",
+    "steps": [
+      "map 遍历任务，匹配时返回带新标题的新对象，其余返回旧对象。",
+      "单独编写 taskSummary，用 filter/map 或循环完成摘要。",
+      "先重命名再生成摘要；打印旧列表证明没有连带修改。"
+    ],
+    "hint": "数组与任务卡片是两层，不能只生成新数组却修改旧任务对象。",
+    "concept": "map 生成新数组；对象展开生成被编辑的新卡片。摘要只是读取结果，不应修改数据。",
+    "extension": "给任务增加 meta.minutes，编写增加一分钟的操作，继续保留原对象与原 meta。"
+  },
+  "05": {
+    "title": "综合大练习：跨文件的任务存档工具",
+    "goal": "把保存、读取和调用拆到不同文件，让损坏存档也有清楚的回退结果。",
+    "local": true,
+    "requirements": [
+      "编辑 practice/finals/05-storage/storage.js，具名导出 saveTasks 和 loadTasks；main.js 导入并调用。",
+      "saveTasks(tasks) 返回 JSON 字符串；loadTasks(text) 对合法数组还原，坏文本或非数组返回 []。",
+      "保存后读取应保留任务内容，原数组不被修改；字段校验留到第 17 关。",
+      "在 main.js 依次打印正常存档、oops、null、{} 的读取结果，再用断点观察一次失败路径。"
+    ],
+    "starter": "import { saveTasks, loadTasks } from \"./storage.js\";\nconst tasks = [{ title: \"学习\", done: false }];\nconsole.log(loadTasks(saveTasks(tasks)));\n// TODO：再调用 loadTasks 观察坏文本、null 和对象文本。\n",
+    "file": "practice/finals/05-storage/main.js",
+    "files": {
+      "storage.js": "export function saveTasks(tasks) {\n  // TODO：返回 JSON 文本。\n  return \"\";\n}\nexport function loadTasks(text) {\n  // TODO：处理解析失败与合法的非数组。\n  return [];\n}\n"
+    },
+    "answerFile": "answers/finals/05-storage/main.js",
+    "supportAnswers": {
+      "storage.js": "answers/finals/05-storage/storage.js"
+    },
+    "checks": "const source=[{title:\"A\",done:false}];const before=JSON.stringify(source);const saved=saveTasks(source);check(typeof saved===\"string\" && JSON.stringify(loadTasks(saved))===before,\"保存再读取应保留数据\");for(const text of [\"oops\",\"null\",\"123\",\"{}\"]){check(JSON.stringify(loadTasks(text))===\"[]\",\"坏文本或非数组回退为空数组：\"+text);}check(loadTasks(\"[]\").length===0 && JSON.stringify(source)===before,\"合法空数组与原数据保护\");",
+    "examples": "正常任务数组 → 保存成文本 → 读取还原；oops、null、123、{} → []。自动检查验证数据结果，断点观察由你完成。",
+    "steps": [
+      "先在 storage.js 实现并导出两个工具，让 main.js 能导入。",
+      "读取时先处理 JSON 格式错误，再检查外层数组。",
+      "分别运行正常与异常输入，用断点看分支后再执行 --check。"
+    ],
+    "hint": "先确认两个文件之间名称、路径正确，再排查解析与结构检查；编辑 storage.js，运行 main.js。",
+    "concept": "模块分开职责；JSON 在文字与数据间转换；异常与非数组是不同的失败路径。",
+    "extension": "在读取失败时加入原因日志，区分文本损坏和内容不是数组，再用断点验证。"
+  }
+})) {
+  const lab = globalThis.learningLabs.find(item => item.id === id);
+  Object.assign(lab, assignment);
+}
 for (const lab of globalThis.learningLabs) lab.isFinal = true;
 
 // 课程标题描述这一章学什么，综合题另有自己的任务名称。
@@ -289,9 +371,9 @@ const chapterNames = [
   ["认识 JavaScript：写出第一段程序", "认识 JavaScript", "从保存文字和输出结果开始，认识变量和最简单的程序。"],
   ["变量与类型：分清文字和数字", "变量与类型", "观察文字与数字的差别，练习转换、计算和有效数字判断。"],
   ["条件与循环：让程序判断和重复", "条件与循环", "从一次加法开始，学会条件判断、重复执行和累计统计。"],
-  ["函数：把计算变成可复用的工具", "函数与返回值", "练习传入参数、执行计算和返回结果，让同一段代码处理不同输入。"],
+  ["函数与作用域：组合工具并保留状态", "函数与作用域", "从参数与返回值开始，练习回调、作用域和各自独立的计数状态。"],
   ["数组与对象：整理一组任务", "数组与对象", "从读取一项数据开始，练习筛选、转换和统计一组数据。"],
-  ["JSON 与错误处理：读写任务存档", "JSON 与错误处理", "区分文本和实际数据，练习保存、解析和处理读取失败。"],
+  ["模块与调试：拆开程序并定位错误", "模块、JSON 与调试", "练习跨文件复用、JSON 存档和错误定位，用断点观察执行过程。"],
   ["异步编程：等待结果并处理失败", "异步编程", "看清异步执行顺序，练习等待真实结果并为失败准备反馈。"],
   ["DOM 与事件：让数据改变页面", "DOM 与事件", "把文字、任务数据和点击事件接起来，观察页面怎样更新。"],
   ["TypeScript 入门：用类型检查发现错误", "TypeScript 入门", "了解类型注解与真实数据的区别，用编译器检查输入输出约定。"],

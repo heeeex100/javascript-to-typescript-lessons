@@ -11,8 +11,6 @@
 
 #### 1 · 先练页面上要显示的那句话
 
-先猜输出，再点运行。看不懂的行留到下一步逐行解释，不需要边看边查一串术语。
-
 ```html
 <button id="add">加一次</button>
 <p id="count"></p>
@@ -39,6 +37,14 @@ HTML 的 button 创建按钮，p 创建放文字的区域；id 是让脚本找�
 addEventListener 注册一段“发生点击时再执行”的函数。注册时不先加 1；你点击后，才先 clicks+=1，然后 render() 更新文字。最后那句 render() 则负责页面刚打开时显示 0。
 
 
+**HTML 的括号不是 JS 的比较符号**
+
+`<button id="add">加一次</button>` 中，尖括号包住 HTML 标签，id 是属性，等号后引号里的 add 是属性值；结束标签多一个 /。script 标签里面才是 JS。JS 中的 `"#count"` 是传给选择器的字符串，# 表示按 id 查找，不能漏掉后还期待它查到同一个元素。
+
+`.addEventListener("click", () => { ... })` 的第一个参数是事件名，第二个参数是一个函数，逗号分隔两者。注册写完后看到的 `});` 依次关闭函数体、方法调用，最后结束语句。不是多写了几个无用符号。若写成 `addEventListener("click", render())`，render 会在注册时立即执行，传给监听器的是结果，点击时不会按原意再调用它。
+
+querySelector 找不到元素时得到 null；此时直接写 label.textContent 会报 TypeError。要检查选择器、HTML 的 id 和脚本执行时机，不是改成任何变量名都能继续操作页面。
+
 ##### 就地小练习 07-01 · 先练页面上要显示的那句话
 
 输入剩余数量，返回“剩余 N 项”。这题只练字符串，真实 DOM 在下面主挑战操作。
@@ -57,7 +63,7 @@ function remainingText(count) { return "剩余 0 项"; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function remainingText(count) { return `剩余 ${count} 项`; }
@@ -77,8 +83,8 @@ function remainingText(count) { return `剩余 ${count} 项`; }
 
 本页新增的小练习先让你算对文字和剩余数量；综合大练习再把它接到真实 DOM。
 
-如果要保留自己的实验，先运行 `npm run concept -- 07 --prepare`，修改创建的文件，再用 `npm run concept -- 07 --local` 运行。HTML 保存后刷新浏览器。重复准备会保留你已有的文件。
 
+综合任务监听的是表单的 submit 事件。回调里的 event 是浏览器传入的事件对象，event.preventDefault() 阻止表单默认提交时的页面导航或刷新，方便我们用 JS 更新列表。这里只读取 input.value 得到字符串，再用 trim() 处理；HTML 中看起来是数字的输入，也不能因此假定 .value 已是 JS 数字。
 
 ##### 就地小练习 07-02 · 再练统计未完成数量
 
@@ -98,7 +104,7 @@ function remainingCount(tasks) { return tasks.length; }
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 function remainingCount(tasks) { return tasks.filter(task => !task.done).length; }
@@ -113,8 +119,6 @@ function remainingCount(tasks) { return tasks.filter(task => !task.done).length;
 浏览器把 HTML 变成可操作的元素对象，这套对象叫 **DOM**。点击等发生的事情叫**事件**，收到事件后执行的函数叫**监听器**。
 
 这里 render 只是我们给“重新把数据写到页面”这段函数起的名字，不是 JavaScript 自带的神奇刷新开关。普通 Node.js 脚本没有浏览器的 document，HTML 实验应在浏览器里打开。
-
-做完小练习后，回综合大练习把这些动作组合起来。若某一步仍说不清，就回到对应小题换一个数字再试；此时读更长的术语表帮助不大。
 
 
 ##### 就地小练习 07-03 · 最后练数据变化后的重新计算
@@ -138,7 +142,7 @@ task.done = true;
 </details>
 
 <details>
-<summary>试过后再看解释</summary>
+<summary>参考答案与解释</summary>
 
 ```js
 const task = { done: false };
@@ -185,7 +189,7 @@ label = `剩余 ${task.done ? 0 : 1} 项`;
 </details>
 
 <details>
-<summary>完成后复盘：这道题用到了什么</summary>
+<summary>相关知识</summary>
 
 页面上的字不会自动知道数组变了。每次状态更新后调用 render，让 DOM 重新反映任务数据。事件回调是把“用户点击”接到“更新数据”的地方。
 
@@ -198,7 +202,7 @@ label = `剩余 ${task.done ? 0 : 1} 项`;
 扩展不计入本关基础验收。
 
 <details>
-<summary>已经独立尝试，再看完整参考</summary>
+<summary>参考答案</summary>
 
 [综合大练习参考](../answers/finals/07-dom/app.js) · [参考页面](../answers/finals/07-dom/index.html)
 

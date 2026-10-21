@@ -42,7 +42,7 @@ npm.cmd --version
 
 选择 01 关，用“下一小步”依次看例子和逐行解释，每读一段就在下方做对应小练习。看懂后再尝试主挑战，修好 20 + 5 得到 205 的问题。JS 网页实验无需先安装课程依赖；Node 安装好后就能启动，运行过程不需要外网。
 
-如果循环那关看不懂，先回第 02 关，从总数 0→3→8 开始，按顺序做六道小题。新版共有 60 道小步练习；JS 可以直接在网页检查，TS 小题用 `npm.cmd run drill -- 08-01 --prepare` 创建文件，修改后用 `npm.cmd run drill -- 08-01 --check` 检查。小题网页草稿不包含在主挑战学习备份中，迁移时请单独复制保存。
+如果循环那关看不懂，先回第 02 关，从总数 0→3→8 开始，先完成前六道，再继续练比较和逻辑判断；第 02 关共 11 道。新版共有 82 道小步练习；普通 JS 可以直接在网页检查，模块、断点与 TS 小题需在本地完成。TS 小题用 `npm.cmd run drill -- 08-01 --prepare` 创建文件，修改后用 `npm.cmd run drill -- 08-01 --check` 检查。小题网页草稿不包含在主挑战学习备份中，迁移时请单独复制保存。
 
 00–18 每关都有概念解释、独立小实验和折叠自测答案；完整内容也在本地讲义中，可从 [概念导航](reference/概念导航.md) 查找。用 `npm.cmd run concept -- 08` 编译并运行概念原例（TS 先安装课程依赖）；用 `npm.cmd run concept -- 08 --prepare` 创建独立的 practice/concepts/08.ts，修改后用 `npm.cmd run concept -- 08 --local` 运行自己的版本。JS 也使用相同命令；07 准备 HTML 后用浏览器打开。重复准备不会覆盖自己的实验文件。
 
@@ -119,3 +119,11 @@ npm.cmd run lab -- 08 --check
 - **找不到 package.json**：终端不在课程根目录；进入含该文件的文件夹再运行。
 
 本包已在 macOS 上重新解压并验证 Node / TypeScript 教学脚本；Windows 启动脚本按 cmd 语法编写，但尚未在你的 Windows 电脑上实机验证。完成第 2～4 步后，`verify:labs` 可以确认当地环境能运行课程。
+
+## 新增模块与断点练习
+
+在项目根目录执行 `npm.cmd run drill -- 05-04 --prepare`，编辑 `practice/steps/05-04/main.js`，同目录的 `minutes.js` 是配套工具。保存后执行 `npm.cmd run drill -- 05-04 --check`。重复准备会保留这两份文件的修改。05-05 同样使用两份文件，练习导出自己的函数。
+
+05-08 需要本地调试器，具体操作见该段讲解。在 VS Code 打开项目，命令面板选择 Debug: JavaScript Debug Terminal，输入 `node practice/steps/05-08.js`；停在 debugger 后观察 number、total，再单步执行。自动检查通过不代表已经完成断点观察。
+
+第 03、04、05 关的新版综合题分别位于 `practice/finals/03-checkout.js`、`practice/finals/04-editor.js`、`practice/finals/05-storage/`。旧版文件与网页草稿保留。05 的实现写在 storage.js，main.js 是调用入口；用 `npm.cmd run lab -- 05 --check` 验收。本地文件请单独复制备份，网页备份不会收集它们。

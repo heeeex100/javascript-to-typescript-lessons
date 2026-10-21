@@ -22,16 +22,17 @@ globalThis.WorkshopMini = (() => {
     $("drill-title").textContent = "就地小练习 · " + current.title;
     $("drill-prompt").textContent = current.prompt;
     $("drill-code").value = drafts[id] ?? current.starter;
-    const local = current.lang === "ts";
+    const local = current.lang === "ts" || current.local;
     $("drill-code").readOnly = local;
     $("drill-actions").hidden = local;
     $("drill-local").hidden = !local;
-    $("drill-command").textContent = `npm run drill -- ${id} --prepare\n# 编辑 ${current.file}，保存后执行：\nnpm run drill -- ${id} --check`;
+    $("drill-command").textContent = `npm run drill -- ${id} --prepare\n# 编辑 ${current.file}，保存后执行：\nnpm run drill -- ${id} --check` + (current.debugCommand ? `\n\n# 观察断点：\n${current.debugCommand}` : "");
     $("drill-location").textContent = local ? `这里是起点预览；编辑 ${current.file}，终端检查。` : "小练习与主挑战独立。网页 JS 小练习草稿单独保存在此浏览器，不包含在主挑战备份中。";
     $("drill-hint").textContent = current.hint;
-    $("drill-answer").replaceChildren(WorkshopReader.render("```" + current.lang + "\n" + current.answer + "```\n\n" + current.explanation, location.href));
+    const companions = Object.entries(current.files ?? {}).map(([name, source]) => `\n\n配套文件 ${name}：\n\n\`\`\`js\n${source}\`\`\``).join("");
+    $("drill-answer").replaceChildren(WorkshopReader.render("```" + current.lang + "\n" + current.answer + "```\n\n" + current.explanation + companions, location.href));
     for (const details of $("small-steps").querySelectorAll("details")) details.open = false;
-    $("drill-output").textContent = "先运行看看，再改一处；检查反馈只针对这一步。";
+    $("drill-output").textContent = local ? (current.localNote ?? "按上面的命令准备文件，修改后在终端检查。") : "运行结果会显示在这里。";
     $("drill-next").disabled = !continueLesson && !$("drill-picker").options[$("drill-picker").selectedIndex + 1];
     $("drill-next").textContent = "继续学习 →";
   }
@@ -44,7 +45,7 @@ globalThis.WorkshopMini = (() => {
     if (!canSave) $("drill-location").textContent = "当前无法保存小练习草稿，请在离开前复制代码到自己的文件。";
   }
   function run(checking) {
-    if (!current || current.lang !== "js") return;
+    if (!current || current.lang !== "js" || current.local) return;
     stop(); save(); const runId = token;
     const url = URL.createObjectURL(new Blob([WorkshopRunner.program], { type: "text/javascript" }));
     try { worker = new Worker(url); }
@@ -58,7 +59,7 @@ globalThis.WorkshopMini = (() => {
       if (data.type === "log") append(data.text);
       else if (data.type === "error") { append(data.text); stop(); }
       else if (data.type === "done") {
-        append(checking ? "✓ 这一步通过。换一个输入再试，并说出为什么这样改。" : "运行完成。想确认是否达到目标，再点“检查这一步”。"); stop();
+        append(checking ? "✓ 这一步通过。" : "运行完成。"); stop();
       }
     };
     worker.onerror = event => { if (runId === token) { append(event.message); stop(); } };
