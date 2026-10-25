@@ -19,6 +19,7 @@
   <script defer src="./app.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#title">跳到当前课程</a>
   <aside>
     <a class="brand" href="../README.md">动手学 <span>JS → TS</span></a>
     <p class="nav-caption">讲一段，练一下，最后完成一个任务</p>
@@ -30,7 +31,7 @@
     <p id="progress" class="quiet"></p>
     <details class="backup-tools">
       <summary>备份与迁移</summary>
-      <p class="quiet">导出草稿与网页通关记录，可带到另一台电脑导入。</p>
+      <p class="quiet">导出综合题草稿与验收记录，可带到另一台电脑导入。小练习草稿仅保存在当前浏览器，请另行复制保存。</p>
       <button id="export-backup" type="button">导出学习备份</button>
       <button id="import-backup" type="button">导入学习备份</button>
       <input id="backup-file" type="file" accept=".json,application/json" hidden>
@@ -41,7 +42,7 @@
   <main>
     <header>
       <p id="eyebrow" class="eyebrow"></p>
-      <h1 id="title"></h1>
+      <h1 id="title" tabindex="-1"></h1>
       <p id="goal" class="goal"></p>
     </header>
     <details id="foundations-panel" class="foundations-panel" open>
@@ -78,8 +79,8 @@
         <div class="code-editor"><pre id="line-numbers" aria-hidden="true">1</pre><textarea id="code" maxlength="100000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="draft-note"></textarea></div>
         <p id="draft-note" class="quiet"></p>
         <div id="js-controls" class="controls">
-          <button id="run" class="primary">运行代码</button>
-          <button id="check">验收综合大练习</button>
+          <button id="run">运行代码</button>
+          <button id="check" class="primary">验收综合大练习</button>
           <button id="stop" disabled>停止</button>
           <button id="download-code">下载代码</button>
           <button id="reset" class="subtle">加载大练习起点</button>
@@ -111,7 +112,7 @@
     <h2 id="import-title">确认导入学习备份</h2>
     <p id="import-summary"></p>
     <label><input id="overwrite-drafts" type="checkbox">替换本机有冲突的草稿（默认保留本机版本）</label>
-    <p class="quiet">备份只包含网页草稿与验收记录，不会修改 practice 文件，也不会执行其中的代码。</p>
+    <p class="quiet">备份只包含综合题草稿与验收记录，不包含小练习草稿，不会修改本地练习文件。</p>
     <div class="controls"><button id="confirm-import" class="primary">导入</button><button id="cancel-import">取消</button></div>
   </dialog>
   <dialog id="lesson-dialog" aria-labelledby="reader-title">

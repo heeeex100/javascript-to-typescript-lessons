@@ -12,6 +12,11 @@ globalThis.WorkshopMini = (() => {
     }
   } catch { canSave = false; }
   let current, worker, timer, token = 0, continueLesson;
+  function feedback(text, state = "") {
+    $("drill-output").textContent = text;
+    $("drill-output").dataset.state = state;
+    $("drill-output").setAttribute("aria-busy", String(state === "running"));
+  }
   function stop() {
     token++; worker?.terminate(); worker = null; clearTimeout(timer);
     $("drill-run").disabled = false; $("drill-check").disabled = false; $("drill-stop").disabled = true;
@@ -32,7 +37,7 @@ globalThis.WorkshopMini = (() => {
     const companions = Object.entries(current.files ?? {}).map(([name, source]) => `\n\n配套文件 ${name}：\n\n\`\`\`js\n${source}\`\`\``).join("");
     $("drill-answer").replaceChildren(WorkshopReader.render("```" + current.lang + "\n" + current.answer + "```\n\n" + current.explanation + companions, location.href));
     for (const details of $("small-steps").querySelectorAll("details")) details.open = false;
-    $("drill-output").textContent = local ? (current.localNote ?? "按上面的命令准备文件，修改后在终端检查。") : "运行结果会显示在这里。";
+    feedback(local ? (current.localNote ?? "按上面的命令准备文件，修改后在终端检查。") : "运行结果会显示在这里。");
     $("drill-next").disabled = !continueLesson && !$("drill-picker").options[$("drill-picker").selectedIndex + 1];
     $("drill-next").textContent = "继续学习 →";
   }
@@ -49,28 +54,36 @@ globalThis.WorkshopMini = (() => {
     stop(); save(); const runId = token;
     const url = URL.createObjectURL(new Blob([WorkshopRunner.program], { type: "text/javascript" }));
     try { worker = new Worker(url); }
-    catch (error) { $("drill-output").textContent = `无法启动小实验：${error.message}`; return; }
+    catch (error) { feedback(`无法启动小实验：${error.message}`, "error"); return; }
     finally { URL.revokeObjectURL(url); }
-    $("drill-output").textContent = "";
+    feedback(checking ? "正在运行并检查…" : "正在运行…", "running");
     $("drill-run").disabled = true; $("drill-check").disabled = true; $("drill-stop").disabled = false;
-    const append = text => { $("drill-output").textContent += text + "\n"; };
+    let started = false;
+    const append = text => {
+      if (!started) { $("drill-output").textContent = ""; started = true; }
+      $("drill-output").textContent += text + "\n";
+    };
+    const finish = state => {
+      $("drill-output").dataset.state = state;
+      $("drill-output").setAttribute("aria-busy", "false"); stop();
+    };
     worker.onmessage = ({ data }) => {
       if (runId !== token) return;
       if (data.type === "log") append(data.text);
-      else if (data.type === "error") { append(data.text); stop(); }
+      else if (data.type === "error") { append(data.text); finish("error"); }
       else if (data.type === "done") {
-        append(checking ? "✓ 这一步通过。" : "运行完成。"); stop();
+        append(checking ? "✓ 这一步通过。" : "运行完成。"); finish(checking ? "passed" : "done");
       }
     };
-    worker.onerror = event => { if (runId === token) { append(event.message); stop(); } };
-    timer = setTimeout(() => { if (runId === token) { append("超过 3 秒，已停止。请检查循环是否会结束。"); stop(); } }, 3000);
+    worker.onerror = event => { if (runId === token) { append(event.message); finish("error"); } };
+    timer = setTimeout(() => { if (runId === token) { append("超过 3 秒，已停止。请检查循环是否会结束。"); finish("error"); } }, 3000);
     worker.postMessage({ source: $("drill-code").value, checks: checking ? current.checks : "" });
   }
   $("drill-picker").onchange = event => choose(event.target.value);
-  $("drill-code").oninput = () => { stop(); save(); $("drill-output").textContent = "代码改了，请重新运行或检查。"; };
+  $("drill-code").oninput = () => { stop(); save(); feedback("代码改了，请重新运行或检查。"); };
   $("drill-run").onclick = () => run(false);
   $("drill-check").onclick = () => run(true);
-  $("drill-stop").onclick = () => { stop(); $("drill-output").textContent += "\n已主动停止。"; };
+  $("drill-stop").onclick = () => { stop(); feedback("已主动停止，本次没有完成检查。"); };
   $("drill-next").onclick = () => {
     if (continueLesson) { continueLesson(); return; }
     const picker = $("drill-picker"); const option = picker.options[picker.selectedIndex + 1];

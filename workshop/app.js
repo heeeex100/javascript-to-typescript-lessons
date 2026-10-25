@@ -42,6 +42,8 @@ function updateDraftNote() {
 function setStatus(text, kind = "") {
   $("status").textContent = text;
   $("status").dataset.state = kind;
+  $("output").dataset.state = kind;
+  $("output").setAttribute("aria-busy", String(kind === "running"));
 }
 function stop() {
   runToken++;
@@ -68,8 +70,13 @@ function updateProgress() {
     button.setAttribute("aria-current", button.dataset.id === current.id ? "step" : "false");
     button.querySelector(".lesson-name").textContent = (State.isPassed(state, lab) ? "✓ " : "") + (lab.navTitle ?? lab.title);
   }
+  if (matchMedia("(max-width: 700px)").matches) {
+    const navigation = $("lessons");
+    const active = navigation.querySelector('[aria-current="step"]');
+    navigation.scrollLeft += active.getBoundingClientRect().left - navigation.getBoundingClientRect().left;
+  }
 }
-function select(id, historyMode = "push") {
+function select(id, historyMode = "push", locate = true) {
   stop();
   current = labs.find(lab => lab.id === id) ?? labs[0];
   if (location.hash !== "#" + current.id) {
@@ -90,7 +97,7 @@ function select(id, historyMode = "push") {
         globalThis.WorkshopMini.select(current.id, index + 1, next);
         $("drill-next").textContent = index === count - 1 ? "去做综合大练习 →" : "继续下一段讲解 →";
       },
-      onComplete() { $("final-exercise").scrollIntoView({ behavior: "smooth" }); $("final-exercise").focus({ preventScroll: true }); },
+      onComplete() { $("final-exercise").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }); $("final-exercise").focus({ preventScroll: true }); },
     });
   $("foundations-panel").open = true;
   $("concept-command").textContent = `npm run concept -- ${current.id}${current.lang === "dom" ? " --prepare" : ""}`;
@@ -128,6 +135,10 @@ function select(id, historyMode = "push") {
   $("next").disabled = current === labs.at(-1);
   $("previous").disabled = current === labs[0];
   updateLines(); updateProgress(); save();
+  if (locate) {
+    $("title").focus({ preventScroll: true });
+    document.querySelector("main header").scrollIntoView({ behavior: "instant", block: "start" });
+  }
 }
 function edited() {
   stop();
@@ -146,7 +157,7 @@ function run(checking) {
   if (checking) delete state.passed[lab.id];
   save(); updateProgress();
   $("output").textContent = "";
-  setStatus(checking ? "正在运行并检查…" : "正在运行…");
+  setStatus(checking ? "正在运行并检查…" : "正在运行…", "running");
   $("run").disabled = true;
   $("check").disabled = true;
   $("stop").disabled = false;
@@ -195,6 +206,7 @@ async function openLesson(url) {
   const token = ++readerToken;
   $("reader-title").textContent = "动手指导";
   $("reader-content").textContent = "正在打开指导…";
+  $("reader-content").setAttribute("aria-busy", "true");
   if (!$("lesson-dialog").open) $("lesson-dialog").showModal();
   try {
     const response = await fetch(url);
@@ -202,12 +214,15 @@ async function openLesson(url) {
     const text = await response.text();
     if (token !== readerToken) return;
     $("reader-content").replaceChildren(globalThis.WorkshopReader.render(text, url));
+    $("reader-title").textContent = $("reader-content").querySelector("h1")?.textContent ?? "动手指导";
     $("reader-content").scrollTop = 0;
   } catch {
     if (token !== readerToken) return;
     const note = document.createElement("p"); note.textContent = "无法读取指导。可以启动 npm run workshop 后重试，或直接打开原文件：";
     const link = document.createElement("a"); link.href = url; link.textContent = "打开指导文件";
     $("reader-content").replaceChildren(note, link);
+  } finally {
+    if (token === readerToken) $("reader-content").setAttribute("aria-busy", "false");
   }
 }
 
@@ -219,6 +234,11 @@ for (const lesson of labs) {
   $("lessons").append(button);
 }
 $("basic-track").addEventListener("click", () => select(lastTrack.basic));
+document.querySelector(".skip-link").addEventListener("click", event => {
+  event.preventDefault();
+  $("title").focus({ preventScroll: true });
+  document.querySelector("main header").scrollIntoView({ behavior: "instant" });
+});
 $("advanced-track").addEventListener("click", () => select(lastTrack.advanced));
 $("run").addEventListener("click", () => run(false));
 $("check").addEventListener("click", () => run(true));
@@ -232,7 +252,7 @@ $("code").addEventListener("keydown", event => {
 $("download-code").addEventListener("click", () => download(`${current.id}.js`, $("code").value, "text/javascript;charset=utf-8"));
 $("export-backup").addEventListener("click", () => {
   download("js-ts-learning-backup.json", State.exportBackup(labs, state), "application/json");
-  $("backup-feedback").textContent = "已导出网页草稿与验收记录。在另一台电脑使用“导入学习备份”恢复。";
+  $("backup-feedback").textContent = "已导出综合题草稿与验收记录；不含小练习草稿。在另一台电脑使用“导入学习备份”恢复。";
 });
 $("import-backup").addEventListener("click", () => $("backup-file").click());
 $("backup-file").addEventListener("change", async event => {
@@ -260,13 +280,18 @@ $("cancel-import").addEventListener("click", () => $("import-dialog").close());
 $("import-dialog").addEventListener("close", () => { pendingImport = undefined; });
 $("reset").addEventListener("click", () => {
   if (!confirm("把本关网页草稿恢复到起始代码？建议先下载代码或导出学习备份。")) return;
-  delete state.drafts[current.id]; delete state.passed[current.id]; save(); select(current.id, "replace");
+  stop();
+  delete state.drafts[current.id]; delete state.passed[current.id];
+  $("code").value = current.starter;
+  $("code").scrollTop = 0;
+  $("output").textContent = "已恢复起始代码，可以重新开始。";
+  setStatus("已恢复综合题起点");
+  updateLines(); updateProgress(); save();
+  $("code").focus();
 });
 $("next").addEventListener("click", () => select(labs[Math.min(labs.indexOf(current) + 1, labs.length - 1)].id));
 $("previous").addEventListener("click", () => select(labs[Math.max(labs.indexOf(current) - 1, 0)].id));
-$("lesson-link").addEventListener("click", event => { event.preventDefault(); openLesson(event.currentTarget.href); });
-$("foundations-index").addEventListener("click", event => { event.preventDefault(); openLesson(event.currentTarget.href); });
-$("reader-content").addEventListener("click", event => {
+document.addEventListener("click", event => {
   const link = event.target.closest("a");
   if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
   const url = new URL(link.href);
@@ -275,5 +300,5 @@ $("reader-content").addEventListener("click", event => {
 $("close-reader").addEventListener("click", () => $("lesson-dialog").close());
 $("lesson-dialog").addEventListener("close", () => { readerToken++; });
 window.addEventListener("hashchange", () => select(location.hash.slice(1), "replace"));
-select(location.hash.slice(1) || state.lastLesson, "replace");
+select(location.hash.slice(1) || state.lastLesson, "replace", false);
 $("backup-feedback").textContent = recoveryMessage;
