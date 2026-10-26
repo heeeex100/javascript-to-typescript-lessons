@@ -69,6 +69,23 @@ const tasks=[() => { started+=1; return Promise.resolve(1); }];
 
 #### 2 · 再把失败变成可保存的结果
 
+把任务调用放在 try 内，并等待它完成，才能同时接住同步和异步失败：
+
+```js
+async function settle(task) {
+  try {
+    return { status: "fulfilled", value: await task() };
+  } catch (reason) {
+    return { status: "rejected", reason };
+  }
+}
+console.log(await settle(() => 7));
+console.log(await settle(() => { throw "同步失败"; }));
+console.log(await settle(() => Promise.reject("异步失败")));
+```
+
+三次分别得到 fulfilled、rejected、rejected，后两次会保留各自原因。少写 await 时，异步拒绝不会在这个 try 中被接住。
+
 先做任务工厂小题，确认未调用时 started=0。再做失败结果小题，让同步 throw 和异步 reject 都变成可以保存的结果。
 
 最后做顺序小题：先记录 B 到位置 1，再记录 A 到位置 0，最终仍得到 [A,B]。
@@ -109,6 +126,17 @@ async function settle(task) { try { return {status:"fulfilled",value:await task(
 </details>
 
 #### 3 · 完成顺序不同也能按原顺序放
+
+任务完成时按原始下标写回，而不是按完成顺序追加：
+
+```js
+const results = new Array(2);
+results[1] = "B";
+results[0] = "A";
+console.log(results);
+```
+
+虽然先放入 B，最后仍输出 ["A","B"]。改用 push 时就会按追加顺序得到 ["B","A"]。
 
 多项操作的等待区间相互重叠叫**并发**，并不表示 JS 算术一定在多核上同时做。
 

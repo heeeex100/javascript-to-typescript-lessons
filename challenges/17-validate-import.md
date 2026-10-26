@@ -67,6 +67,17 @@ function isRecord(value: unknown): value is Record<string,unknown> { return type
 
 #### 2 · 再问字段值是否真是布尔
 
+直接比较布尔值和看起来像布尔值的文字：
+
+```ts
+const values: unknown[] = [true, false, "false", 0];
+for (const value of values) {
+  console.log(value, typeof value === "boolean");
+}
+```
+
+判断结果依次是 true、true、false、false。不能先用 Boolean(value) 转换，否则字符串 "false" 也会变成 true。
+
 按三个小题分开练：排除 null/数组 → 验证布尔字段 → 拼出清楚的错误路径。
 
 然后按列表位置收集问题。例如第三项的标题为空，记录 [2].title；第三项的 done 类型错误，记录 [2].done。位置从 0 开始，所以第三项是 2。
@@ -107,6 +118,18 @@ Boolean("false") 为 true，强制转换不能替代类型校验。
 </details>
 
 #### 3 · 最后告诉用户哪一项错了
+
+错误路径把位置和字段名组织成可定位的文字：
+
+```ts
+function fieldPath(index: number, field: string): string {
+  return `[${index}].${field}`;
+}
+console.log(fieldPath(2, "title"));
+console.log(fieldPath(2, "done"));
+```
+
+输出 [2].title、[2].done，表示第三项的两个不同字段。输入 index=0 时，路径就指向第一项。
 
 数据从文件、接口、用户进入程序的地方叫**输入边界**。检查成功后才当成具体类型使用，叫**运行时校验**。
 

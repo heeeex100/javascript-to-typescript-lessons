@@ -64,7 +64,17 @@ function createCounter() { let value=0; return () => { value+=1; return value; }
 
 #### 2 · 再拿最近的一份历史
 
-先把 value=0 移进返回的小函数，观察 a 两次都变成 1。再移回原处，恢复 1、2。value 放在不同位置，初始化的次数就不同。
+同一份历史，分别观察“读取”和“取出”的区别：
+
+```js
+const history = ["A", "B", "C"];
+console.log(history.at(-1), history.length);
+console.log(history.pop(), history.length);
+```
+
+两次都拿到 C，但长度依次是 3、2。下面小题要求不改原数组，因此只读取，不用 pop 删除。
+
+把 history 改成空数组 []，at(-1) 和 pop() 都会返回 undefined；不要把“没历史”误当成最近的内容。
 
 接着在纸上写 A→B→C。撤销一次回 B：C 放进可重做列表；再修改成 D，路线变成 A→B→D，旧路线 C 就应清掉。
 
@@ -102,6 +112,18 @@ function latest(history) { return history.at(-1); }
 </details>
 
 #### 3 · 做新修改就放弃旧未来
+
+撤销后再改成 D，旧的可重做路线 C 就应清空：
+
+```js
+let present = "B";
+const future = ["C"];
+present = "D";
+future.length = 0;
+console.log(present, future);
+```
+
+输出 D 和 []。如果不清空 future，之后的重做就可能误回到已经放弃的 C。
 
 返回的函数仍能使用定义它时的外部变量，这个现象叫**闭包**。后放入、先取出的历史集合叫**栈**。
 

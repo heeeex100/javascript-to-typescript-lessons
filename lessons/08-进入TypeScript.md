@@ -72,9 +72,21 @@ const result = add(Number(text), 2);
 
 #### 2 · 再给函数写清输入输出
 
-先保持原样运行，看到 12。然后取消最后一行注释，重新检查，看报错指向哪里。
+本段完整例子把参数类型和返回类型放在一起：
 
-接着保留错误调用，把类型改为 any，虽然可能不报错，但你也失去这条保护。恢复 number，在调用位置做 Number(text)，让数据本身满足要求。
+```ts
+function double(value: number): number {
+  return value * 2;
+}
+console.log(double(6));
+// console.log(double("6"));
+```
+
+输出 12。取消最后一行注释后，字符串不符合参数要求；改成 double(Number("6")) 才是转换输入。下面小题需要你亲自写出这两个 number。
+
+要在本地尝试这一段，先运行 `npm run concept -- 08 --prepare`，将本段完整代码复制到 `practice/concepts/08.ts`，保存后运行 `npm run concept -- 08 --local`。普通的 `npm run concept -- 08` 运行的是第一段原例，不会读取这次改动。
+
+保留错误调用，暂时把 value 的 number 改为 any，编译器就失去这条参数保护。最后恢复 number，在调用位置使用 Number("6")。
 
 本课程的命令依次做：检查 .ts → 生成 .js → Node.js 运行 .js。类型检查失败时，命令不会继续运行这份代码。
 
@@ -108,6 +120,18 @@ function twice(value: number): number { return value * 2; }
 </details>
 
 #### 3 · 返回值也要真的符合类型
+
+返回类型约束的是实际交回的值：
+
+```ts
+function read(): number {
+  return Number("20");
+}
+const minutes = read();
+console.log(minutes + 5);
+```
+
+输出 25。把 return Number("20") 改成 return "20"，编译器会指出返回的字符串不符合 number；仅修改类型注解不会把字符串转换成数字。
 
 这种运行前的检查叫**静态类型检查**。TS 是在 JS 上增加类型写法和检查的语言。
 

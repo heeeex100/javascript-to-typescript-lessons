@@ -16,7 +16,7 @@ main { max-width: 1390px; width: 100%; padding: 36px 42px 24px; margin: auto; }
 .eyebrow { color: #406855; font-size: 13px; letter-spacing: .05em; margin: 0 0 10px; }
 h1 { font-size: clamp(25px, 2.5vw, 38px); letter-spacing: -.03em; line-height: 1.3; margin: 0 0 14px; }
 .goal { color: #51616a; max-width: 800px; margin: 0 0 30px; }
-.workspace { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 28px; align-items: start; }
+.workspace { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 1.5fr); gap: 28px; align-items: start; }
 .foundations-panel { margin: 0 0 28px; padding: 18px 22px; border: 1px solid #cedbca; border-radius: 12px; background: #f0f5eb; min-width: 0; }
 .foundations-panel > summary { font-size: 16px; }
 .foundations-panel .lesson-content { max-width: 920px; font-size: 16px; }
@@ -151,3 +151,48 @@ dialog[open] { animation: dialog-in 160ms ease-out; }
 }
 .lesson-code pre[role="status"][data-state="error"] { background: #fff0e9; color: #85381f; border-left: 3px solid #ad4c2c; }
 .lesson-code pre[role="status"][data-state="running"] { background: #edf3fa; }
+
+/* 段落选择与可编辑示例：先看任务，再动手。 */
+aside { position: sticky; top: 0; align-self: start; max-height: 100dvh; overflow-y: auto; }
+.lesson-step-nav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 12px; padding: 18px 0; }
+.step-selector { display: grid; gap: 5px; min-width: 0; }
+.lesson-step-nav .step-selector > span { font-size: 12px; text-align: left; color: #516157; }
+.step-selector select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 30px 8px 10px; border: 1px solid #b9cbbb; border-radius: 8px; background: white; color: #253743; font: inherit; font-size: 14px; text-overflow: ellipsis; }
+.step-status { grid-column: 1 / -1; margin: 0; font-size: 13px; color: #516157; }
+.lesson-step-body > .lesson-content > h4:first-child { margin-top: 24px; font-size: 21px; }
+.lesson-step-body > .lesson-content .lesson-code { border: 1px solid #ccd9cc; border-radius: 12px; background: #fff; padding: 14px; overflow: hidden; }
+.example-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.example-toolbar > span { flex: 1 1 200px; color: #50655b; font-size: 13px; }
+.example-toolbar button { margin: 0 !important; }
+.example-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.example-actions button { margin: 0 !important; }
+.example-editor { min-height: 0; max-height: 560px; border: 1px solid #b9cbbb; border-radius: 8px; padding: 14px; background: #fcfdfb; }
+.example-local-note { font-size: 13px; color: #50655b; margin: 0 0 10px; }
+.lesson-code > details { font-size: 14px; margin-top: 12px; overflow-wrap: anywhere; }
+.lesson-code > .quiet { margin: 10px 0 0; }
+.lesson-code pre[role="status"] { margin-top: 12px; white-space: pre-wrap; overflow-wrap: anywhere; border-left: 3px solid #c4d0c4; }
+.lesson-code pre[role="status"][data-state="done"] { background: #eaf4e8; color: #245a38; border-color: #34764b; }
+#review-lesson { margin: -12px 0 22px; }
+.guide-panel > h2 { font-size: 18px; }
+.guide-panel > a { display: inline-block; margin-top: 14px; }
+#import-summary { white-space: pre-line; }
+#reset-dialog { width: min(480px, 92vw); }
+@media(max-width: 1150px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
+@media(max-width: 700px) {
+  aside { position: static; max-height: none; overflow: visible; }
+  .lesson-step-nav { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .step-selector { grid-row: 1; grid-column: 1 / -1; }
+  .step-status { grid-row: 3; }
+  .lesson-step-nav .step-selector > span { order: initial; flex-basis: auto; }
+  .example-toolbar > span { flex-basis: 100%; }
+  .example-toolbar button { flex: 1; }
+  .example-editor, .step-selector select { font-size: 16px; }
+  .lesson-step-body > .lesson-content .lesson-code { padding: 12px; }
+  .example-actions button { flex: 1 1 auto; }
+  .guide-panel { padding: 18px; }
+  .guide-panel ul { padding-left: 20px; }
+}
+@media(prefers-reduced-motion: no-preference) {
+  dialog[open]::backdrop { animation: backdrop-in 160ms ease-out; }
+  @keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+}

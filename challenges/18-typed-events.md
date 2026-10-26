@@ -67,6 +67,20 @@ function nameOf(event: keyof Events): keyof Events { return event; }
 
 #### 2 · 再取这个事件对应的数据类型
 
+把事件表也放在当前段，才能看清方括号在查哪个类型：
+
+```ts
+interface Events {
+  saved: { id: number };
+  failed: { message: string };
+}
+const payload: Events["saved"] = { id: 7 };
+console.log(payload.id);
+// const wrong: Events["saved"] = { message: "离线" };
+```
+
+输出 7。取消最后一行注释后，message 不能代替 saved 要求的 id。
+
 Events["saved"] 对应 saved 后面写的数据类型，例如 { id: number }；把事件名换成 failed，对应的就是另一份内容要求。
 
 接着练取消函数：调用后把“是否启用”从 true 改成 false，再调用一次也安全。
@@ -109,6 +123,20 @@ Events["saved"] 读的是类型表中的载荷形状，不是运行时数组。
 </details>
 
 #### 3 · 最后体验取消订阅
+
+先用一个布尔变量观察取消动作，不急着实现完整事件总线：
+
+```ts
+let active = true;
+const off = (): void => { active = false; };
+console.log(active);
+off();
+console.log(active);
+off();
+console.log(active);
+```
+
+依次输出 true、false、false。第二次取消仍然安全，这个性质可以用于完整订阅器的取消函数。
 
 登记一个回调等消息叫**订阅**，发布消息并调用回调叫**派发**。payload 是消息附带的数据，通常叫**载荷**。
 

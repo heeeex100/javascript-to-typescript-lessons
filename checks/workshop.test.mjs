@@ -4,6 +4,7 @@ import { runInNewContext } from "node:vm";
 import "../workshop/labs.js";
 import "../workshop/advanced-labs.js";
 import "../workshop/finals.js";
+import "../workshop/drills.js";
 import "../workshop/state.js";
 import "../workshop/runner.js";
 
@@ -52,6 +53,39 @@ test("备份拒绝错误版本、无效草稿、过大内容；未知键不会�
   const state = State.normalize(labs, input);
   assert.deepEqual(state.drafts, { "01": "" });
   assert.equal({}.polluted, undefined);
+});
+
+test("新版备份保留小练习和阅读位置，旧版导入不会抹掉本机小练习", () => {
+  const current = State.normalize(labs, {
+    smallDrafts: { "01-02": "const total = 25;", "08-01": "本地 TS 不保存" },
+    reading: { "01": { step: 2, section: "final" }, "02": { step: -1 } },
+  });
+  const encoded = State.exportBackup(labs, current);
+  assert.equal(JSON.parse(encoded).version, 2);
+  assert.deepEqual(State.parseBackup(labs, encoded), current);
+  assert.equal(current.smallDrafts["08-01"], undefined);
+  assert.equal(current.reading["02"], undefined);
+  const old = State.parseBackup(labs, JSON.stringify({ kind: "js-ts-workshop-backup", version: 1,
+    state: { drafts: { "01": "旧版综合题" }, passed: {}, lastLesson: "01" } }));
+  const merged = State.planImport(labs, current, old, true).state;
+  assert.equal(merged.smallDrafts["01-02"], "const total = 25;");
+  assert.deepEqual(merged.reading["01"], { step: 2, section: "final" });
+});
+
+test("小练习冲突需要明确替换，导入无效内容不改变原记录", () => {
+  const current = State.normalize(labs, { smallDrafts: { "01-02": "本机" }, reading: { "01": { step: 1, section: "lesson" } } });
+  const incoming = State.normalize(labs, { smallDrafts: { "01-02": "备份", "01-03": "新增" }, reading: { "01": { step: 2, section: "final" } } });
+  const plan = State.planImport(labs, current, incoming);
+  assert.deepEqual(plan.smallCounts, { added: 1, conflicts: 1, unchanged: 0, replaced: 0 });
+  assert.equal(plan.state.smallDrafts["01-02"], "本机");
+  assert.equal(plan.state.reading["01"].step, 1);
+  const replaced = State.planImport(labs, current, incoming, true);
+  assert.equal(replaced.state.smallDrafts["01-02"], "备份");
+  assert.equal(replaced.state.reading["01"].section, "final");
+  assert.equal(current.smallDrafts["01-02"], "本机");
+  const invalid = JSON.parse(State.exportBackup(labs, incoming));
+  invalid.state.smallDrafts["01-02"] = 42;
+  assert.throws(() => State.parseBackup(labs, JSON.stringify(invalid)), /草稿无效/);
 });
 
 async function execute(source, checks = "") {

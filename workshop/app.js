@@ -3,6 +3,7 @@ const State = globalThis.WorkshopState;
 const $ = id => document.getElementById(id);
 const smallStepsPanel = $("small-steps");
 const storageKey = "js-ts-workshop-v1";
+history.scrollRestoration = "manual";
 let canSave = true;
 let stored = {};
 let recoveryMessage = "";
@@ -16,6 +17,8 @@ try {
   }
 } catch { canSave = false; }
 let state = State.normalize(labs, stored);
+state = State.normalize(labs, { ...state, smallDrafts: { ...state.smallDrafts, ...WorkshopMini.getDrafts() } });
+WorkshopMini.replaceDrafts(state.smallDrafts);
 if (!recoveryMessage && stored?.passed && Object.values(stored.passed).some(value => value === true)) {
   recoveryMessage = "旧版草稿已保留；旧通关标记需要重新点击“检查挑战”确认。";
 }
@@ -25,9 +28,12 @@ let timeout;
 let runToken = 0;
 let pendingImport;
 let readerToken = 0;
+let lessonController;
+let pendingReset;
 const lastTrack = { basic: "00", advanced: "13" };
 
 function save() {
+  state.smallDrafts = WorkshopMini.getDrafts();
   try { localStorage.setItem(storageKey, JSON.stringify(state)); canSave = true; }
   catch { canSave = false; }
   updateDraftNote();
@@ -79,6 +85,7 @@ function updateProgress() {
 function select(id, historyMode = "push", locate = true) {
   stop();
   current = labs.find(lab => lab.id === id) ?? labs[0];
+  const resume = state.reading[current.id] ?? { step: 0, section: "lesson" };
   if (location.hash !== "#" + current.id) {
     history[historyMode === "replace" ? "replaceState" : "pushState"](null, "", "#" + current.id);
   }
@@ -90,14 +97,18 @@ function select(id, historyMode = "push", locate = true) {
   $("goal").textContent = current.learningGoal;
   $("final-title").textContent = "综合大练习：" + current.finalTitle;
   $("final-goal").textContent = current.goal;
-  globalThis.WorkshopLessonSteps.show($("foundations-content"),
+  lessonController = globalThis.WorkshopLessonSteps.show($("foundations-content"),
     globalThis.WorkshopFoundations[current.id], new URL("../" + current.lesson, location.href).href, {
+      lesson: current.id,
+      initialStep: resume.step,
       onStep({ body, index, count, next }) {
+        state.reading[current.id] = { step: index, section: "lesson" };
         body.append(smallStepsPanel);
         globalThis.WorkshopMini.select(current.id, index + 1, next);
         $("drill-next").textContent = index === count - 1 ? "去做综合大练习 →" : "继续下一段讲解 →";
+        save();
       },
-      onComplete() { $("final-exercise").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }); $("final-exercise").focus({ preventScroll: true }); },
+      onComplete() { showFinal(); },
     });
   $("foundations-panel").open = true;
   $("concept-command").textContent = `npm run concept -- ${current.id}${current.lang === "dom" ? " --prepare" : ""}`;
@@ -131,14 +142,21 @@ function select(id, historyMode = "push", locate = true) {
   }));
   $("command").textContent = current.lang === "dom" ? current.file : `npm run lab -- ${current.id}\nnpm run lab -- ${current.id} --check`;
   $("output").textContent = interactive ? "运行结果会显示在这里。" : "本关的结果在浏览器任务页面或终端中查看。";
-  setStatus(interactive ? (State.isPassed(state, current) ? "此草稿上次检查通过" : "等你运行") : "切换到实际操作");
+  setStatus(interactive ? (State.isPassed(state, current) ? "此草稿上次检查通过" : "等你运行") : "切换到实际操作", State.isPassed(state, current) ? "passed" : "");
   $("next").disabled = current === labs.at(-1);
   $("previous").disabled = current === labs[0];
   updateLines(); updateProgress(); save();
-  if (locate) {
+  if (resume.section === "final") showFinal(false);
+  else if (resume.step > 0) lessonController?.locate();
+  else if (locate) {
     $("title").focus({ preventScroll: true });
     document.querySelector("main header").scrollIntoView({ behavior: "instant", block: "start" });
   }
+}
+function showFinal(animate = true) {
+  state.reading[current.id].section = "final"; save();
+  $("final-exercise").scrollIntoView({ behavior: animate && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant", block: "start" });
+  $("final-exercise").focus({ preventScroll: true });
 }
 function edited() {
   stop();
@@ -202,6 +220,17 @@ function download(name, text, type) {
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+globalThis.WorkshopDownload = download;
+globalThis.WorkshopConfirmReset = (message, action) => {
+  pendingReset = action; $("reset-message").textContent = message; $("reset-dialog").showModal();
+};
+$("cancel-reset").onclick = () => $("reset-dialog").close();
+$("confirm-reset").onclick = () => { const action = pendingReset; $("reset-dialog").close(); action?.(); };
+$("reset-dialog").addEventListener("close", () => { pendingReset = undefined; });
+$("review-lesson").onclick = () => {
+  state.reading[current.id].section = "lesson"; save();
+  $("foundations-panel").open = true; lessonController?.locate();
+};
 async function openLesson(url) {
   const token = ++readerToken;
   $("reader-title").textContent = "动手指导";
@@ -218,9 +247,9 @@ async function openLesson(url) {
     $("reader-content").scrollTop = 0;
   } catch {
     if (token !== readerToken) return;
-    const note = document.createElement("p"); note.textContent = "无法读取指导。可以启动 npm run workshop 后重试，或直接打开原文件：";
-    const link = document.createElement("a"); link.href = url; link.textContent = "打开指导文件";
-    $("reader-content").replaceChildren(note, link);
+    const note = document.createElement("p"); note.textContent = "暂时无法读取指导。请确认课程服务仍在运行，然后重试。";
+    const retry = document.createElement("button"); retry.textContent = "重新加载指导"; retry.onclick = () => openLesson(url);
+    $("reader-content").replaceChildren(note, retry);
   } finally {
     if (token === readerToken) $("reader-content").setAttribute("aria-busy", "false");
   }
@@ -251,8 +280,11 @@ $("code").addEventListener("keydown", event => {
 });
 $("download-code").addEventListener("click", () => download(`${current.id}.js`, $("code").value, "text/javascript;charset=utf-8"));
 $("export-backup").addEventListener("click", () => {
-  download("js-ts-learning-backup.json", State.exportBackup(labs, state), "application/json");
-  $("backup-feedback").textContent = "已导出综合题草稿与验收记录；不含小练习草稿。在另一台电脑使用“导入学习备份”恢复。";
+  try {
+    save();
+    download("js-ts-learning-backup.json", State.exportBackup(labs, state), "application/json");
+    $("backup-feedback").textContent = "已导出小练习与综合题草稿、阅读位置和综合题验收记录。";
+  } catch (error) { $("backup-feedback").textContent = error.message; }
 });
 $("import-backup").addEventListener("click", () => $("backup-file").click());
 $("backup-file").addEventListener("change", async event => {
@@ -261,8 +293,9 @@ $("backup-file").addEventListener("change", async event => {
   try {
     if (file.size > State.MAX_BACKUP) throw new Error("备份超过 2 MB，请选择实验台导出的 JSON。");
     pendingImport = State.parseBackup(labs, await file.text());
-    const { counts } = State.planImport(labs, state, pendingImport);
-    $("import-summary").textContent = `新增 ${counts.added} 关草稿，相同 ${counts.unchanged} 关，冲突 ${counts.conflicts} 关。默认跳过冲突，保留本机内容。`;
+    state.smallDrafts = WorkshopMini.getDrafts();
+    const { counts, smallCounts } = State.planImport(labs, state, pendingImport);
+    $("import-summary").textContent = `综合题：新增 ${counts.added} 关，冲突 ${counts.conflicts} 关。小练习：新增 ${smallCounts.added} 题，冲突 ${smallCounts.conflicts} 题。默认保留本机冲突草稿及已有阅读位置。`;
     $("overwrite-drafts").checked = false;
     $("import-dialog").showModal();
   } catch (error) { pendingImport = undefined; $("backup-feedback").textContent = error.message; }
@@ -272,14 +305,14 @@ $("confirm-import").addEventListener("click", () => {
   stop();
   const resume = Object.keys(state.drafts).length === 0 ? pendingImport.lastLesson : current.id;
   const plan = State.planImport(labs, state, pendingImport, $("overwrite-drafts").checked);
-  state = plan.state; save();
+  state = plan.state; WorkshopMini.replaceDrafts(state.smallDrafts); save();
   pendingImport = undefined; $("import-dialog").close(); select(resume, "replace");
-  $("backup-feedback").textContent = `已导入 ${plan.counts.added} 关，替换 ${plan.counts.replaced} 关，保留 ${plan.counts.conflicts - plan.counts.replaced} 关冲突草稿。`;
+  $("backup-feedback").textContent = `综合题新增 ${plan.counts.added} 关、替换 ${plan.counts.replaced} 关；小练习新增 ${plan.smallCounts.added} 题、替换 ${plan.smallCounts.replaced} 题。未选择替换的冲突草稿已保留。`;
 });
 $("cancel-import").addEventListener("click", () => $("import-dialog").close());
 $("import-dialog").addEventListener("close", () => { pendingImport = undefined; });
 $("reset").addEventListener("click", () => {
-  if (!confirm("把本关网页草稿恢复到起始代码？建议先下载代码或导出学习备份。")) return;
+  WorkshopConfirmReset("恢复本关综合题的起始代码？当前草稿及验收记录将被替换，可先下载代码或导出学习备份。", () => {
   stop();
   delete state.drafts[current.id]; delete state.passed[current.id];
   $("code").value = current.starter;
@@ -288,6 +321,7 @@ $("reset").addEventListener("click", () => {
   setStatus("已恢复综合题起点");
   updateLines(); updateProgress(); save();
   $("code").focus();
+  });
 });
 $("next").addEventListener("click", () => select(labs[Math.min(labs.indexOf(current) + 1, labs.length - 1)].id));
 $("previous").addEventListener("click", () => select(labs[Math.max(labs.indexOf(current) - 1, 0)].id));

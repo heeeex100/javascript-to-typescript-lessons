@@ -50,9 +50,12 @@ globalThis.WorkshopReader = (() => {
         const pre = document.createElement("pre"); const code = document.createElement("code");
         code.textContent = codeLines.join("\n"); pre.append(code);
         const button = document.createElement("button"); button.type = "button"; button.textContent = "复制代码";
+        let copyTimer;
         button.addEventListener("click", async () => {
-          try { await navigator.clipboard.writeText(code.textContent); button.textContent = "已复制"; }
+          clearTimeout(copyTimer);
+          try { await navigator.clipboard.writeText(box.querySelector("textarea")?.value ?? code.textContent); button.textContent = "已复制 ✓"; }
           catch { button.textContent = "请选中代码复制"; }
+          copyTimer = setTimeout(() => { button.textContent = "复制代码"; }, 1800);
         });
         if (language === "mermaid") {
           const note = document.createElement("p"); note.textContent = "流程图源码（可在支持 Mermaid 的编辑器查看）"; box.append(note);

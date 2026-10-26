@@ -16,6 +16,7 @@ globalThis.WorkshopMini = (() => {
     $("drill-output").textContent = text;
     $("drill-output").dataset.state = state;
     $("drill-output").setAttribute("aria-busy", String(state === "running"));
+    $("drill-next").classList.toggle("primary", state === "passed");
   }
   function stop() {
     token++; worker?.terminate(); worker = null; clearTimeout(timer);
@@ -32,7 +33,7 @@ globalThis.WorkshopMini = (() => {
     $("drill-actions").hidden = local;
     $("drill-local").hidden = !local;
     $("drill-command").textContent = `npm run drill -- ${id} --prepare\n# 编辑 ${current.file}，保存后执行：\nnpm run drill -- ${id} --check` + (current.debugCommand ? `\n\n# 观察断点：\n${current.debugCommand}` : "");
-    $("drill-location").textContent = local ? `这里是起点预览；编辑 ${current.file}，终端检查。` : "小练习与主挑战独立。网页 JS 小练习草稿单独保存在此浏览器，不包含在主挑战备份中。";
+    $("drill-location").textContent = local ? `这里是起点预览；编辑 ${current.file}，终端检查。` : canSave ? "小练习草稿自动保存，已包含在学习备份中。示例试改和本题代码相互独立。" : "当前无法保存小练习草稿，请下载代码或导出学习备份。";
     $("drill-hint").textContent = current.hint;
     const companions = Object.entries(current.files ?? {}).map(([name, source]) => `\n\n配套文件 ${name}：\n\n\`\`\`js\n${source}\`\`\``).join("");
     $("drill-answer").replaceChildren(WorkshopReader.render("```" + current.lang + "\n" + current.answer + "```\n\n" + current.explanation + companions, location.href));
@@ -65,6 +66,7 @@ globalThis.WorkshopMini = (() => {
     };
     const finish = state => {
       $("drill-output").dataset.state = state;
+      $("drill-next").classList.toggle("primary", state === "passed");
       $("drill-output").setAttribute("aria-busy", "false"); stop();
     };
     worker.onmessage = ({ data }) => {
@@ -72,7 +74,7 @@ globalThis.WorkshopMini = (() => {
       if (data.type === "log") append(data.text);
       else if (data.type === "error") { append(data.text); finish("error"); }
       else if (data.type === "done") {
-        append(checking ? "✓ 这一步通过。" : "运行完成。"); finish(checking ? "passed" : "done");
+        append(checking ? "✓ 这一步通过。可以继续学习，也可以换输入再验证。" : "运行完成。"); finish(checking ? "passed" : "done");
       }
     };
     worker.onerror = event => { if (runId === token) { append(event.message); finish("error"); } };
@@ -84,12 +86,26 @@ globalThis.WorkshopMini = (() => {
   $("drill-run").onclick = () => run(false);
   $("drill-check").onclick = () => run(true);
   $("drill-stop").onclick = () => { stop(); feedback("已主动停止，本次没有完成检查。"); };
+  $("drill-download").onclick = () => globalThis.WorkshopDownload(`${current.id}.js`, $("drill-code").value, "text/javascript;charset=utf-8");
+  $("drill-reset").onclick = () => globalThis.WorkshopConfirmReset("恢复这道小练习的起始代码？当前草稿将被替换，可先下载代码。", () => {
+    stop(); $("drill-code").value = current.starter; save();
+    feedback("已恢复小练习起点。"); $("drill-code").focus();
+  });
+  $("drill-code").onkeydown = event => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); run(event.shiftKey); }
+  };
   $("drill-next").onclick = () => {
     if (continueLesson) { continueLesson(); return; }
     const picker = $("drill-picker"); const option = picker.options[picker.selectedIndex + 1];
     if (option) choose(option.value);
   };
   return {
+    getDrafts() { return { ...drafts }; },
+    replaceDrafts(next) {
+      drafts = { ...next };
+      try { localStorage.setItem(key, JSON.stringify(drafts)); canSave = true; }
+      catch { canSave = false; }
+    },
     select(lesson, step, onContinue) {
       continueLesson = onContinue;
       const items = learningDrills.filter(item => item.lesson === lesson && (step === undefined || item.teachingStep === step));

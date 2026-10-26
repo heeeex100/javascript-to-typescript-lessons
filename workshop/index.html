@@ -31,7 +31,7 @@
     <p id="progress" class="quiet"></p>
     <details class="backup-tools">
       <summary>备份与迁移</summary>
-      <p class="quiet">导出综合题草稿与验收记录，可带到另一台电脑导入。小练习草稿仅保存在当前浏览器，请另行复制保存。</p>
+      <p class="quiet">导出小练习、综合题草稿、阅读位置及综合题验收记录。示例试改和本地文件不在备份内。</p>
       <button id="export-backup" type="button">导出学习备份</button>
       <button id="import-backup" type="button">导入学习备份</button>
       <input id="backup-file" type="file" accept=".json,application/json" hidden>
@@ -63,6 +63,8 @@
         <button id="drill-run" type="button">运行这一步</button>
         <button id="drill-check" type="button" class="primary">检查这一步</button>
         <button id="drill-stop" type="button" disabled>停止</button>
+        <button id="drill-download" type="button">下载代码</button>
+        <button id="drill-reset" type="button" class="subtle">恢复小练习起点</button>
       </div>
       <div id="drill-local" hidden><pre id="drill-command"></pre></div>
       <pre id="drill-output" role="status" aria-live="polite"></pre>
@@ -73,7 +75,18 @@
     <section id="final-exercise" tabindex="-1" aria-labelledby="final-title">
     <h2 id="final-title" class="final-title">本关综合大练习</h2>
     <p id="final-goal" class="goal"></p>
+    <button id="review-lesson" type="button">← 回看本关讲解</button>
     <div class="workspace">
+      <section class="guide-panel" aria-label="综合大练习要求">
+        <h2>你要完成的完整任务</h2>
+        <div id="requirements-panel"><ul id="requirements"></ul></div>
+        <p id="final-examples"></p>
+        <details><summary>需要时，再看解题思路</summary><ol id="steps"></ol></details>
+        <details><summary>卡住了？看一个提示</summary><p id="hint"></p></details>
+        <details id="concept-panel"><summary>刚才发生了什么</summary><p id="concept"></p></details>
+        <details class="extension"><summary>完成大练习后：可选加一个需求</summary><p id="extension"></p><p class="quiet">这是加分扩展，不计入本关验收。</p></details>
+        <a id="lesson-link">打开完整动手指导 →</a>
+      </section>
       <section class="editor-panel" aria-label="代码实验">
         <div class="panel-heading"><label id="editor-label" for="code">你的实验代码</label><span id="language"></span></div>
         <div class="code-editor"><pre id="line-numbers" aria-hidden="true">1</pre><textarea id="code" maxlength="100000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="draft-note"></textarea></div>
@@ -92,18 +105,9 @@
           <div id="support-files"></div>
         </div>
         <div class="output-heading"><h2>运行结果</h2><span id="status" role="status" aria-live="polite">等你第一次运行</span></div>
-        <pre id="output" tabindex="0" aria-label="程序输出">运行结果会显示在这里。</pre>
+        <pre id="output" tabindex="0" role="log" aria-live="polite" aria-label="程序输出">运行结果会显示在这里。</pre>
       </section>
-      <section class="guide-panel" aria-label="综合大练习要求">
-        <h2>你要完成的完整任务</h2>
-        <div id="requirements-panel"><ul id="requirements"></ul></div>
-        <p id="final-examples"></p>
-        <details><summary>需要时，再看解题思路</summary><ol id="steps"></ol></details>
-        <details><summary>卡住了？看一个提示</summary><p id="hint"></p></details>
-        <details id="concept-panel"><summary>刚才发生了什么</summary><p id="concept"></p></details>
-        <details class="extension"><summary>完成大练习后：可选加一个需求</summary><p id="extension"></p><p class="quiet">这是加分扩展，不计入本关验收。</p></details>
-        <a id="lesson-link">打开完整动手指导 →</a>
-      </section>
+
     </div>
     </section>
     <footer><span>JavaScript → TypeScript</span><div class="page-navigation"><button id="previous">← 上一关</button><button id="next">下一关 →</button></div></footer>
@@ -111,9 +115,14 @@
   <dialog id="import-dialog" aria-labelledby="import-title">
     <h2 id="import-title">确认导入学习备份</h2>
     <p id="import-summary"></p>
-    <label><input id="overwrite-drafts" type="checkbox">替换本机有冲突的草稿（默认保留本机版本）</label>
-    <p class="quiet">备份只包含综合题草稿与验收记录，不包含小练习草稿，不会修改本地练习文件。</p>
+    <label><input id="overwrite-drafts" type="checkbox">替换冲突草稿及已有阅读位置（默认保留本机版本）</label>
+    <p class="quiet">新版备份包含小练习、综合题草稿与阅读位置；旧版备份仍可导入。不会修改本地练习文件。</p>
     <div class="controls"><button id="confirm-import" class="primary">导入</button><button id="cancel-import">取消</button></div>
+  </dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <h2 id="reset-title">恢复起始代码</h2>
+    <p id="reset-message"></p>
+    <div class="controls"><button id="cancel-reset" autofocus>保留当前代码</button><button id="confirm-reset" class="primary">恢复起点</button></div>
   </dialog>
   <dialog id="lesson-dialog" aria-labelledby="reader-title">
     <div class="reader-heading"><h2 id="reader-title">动手指导</h2><button id="close-reader">关闭指导</button></div>
