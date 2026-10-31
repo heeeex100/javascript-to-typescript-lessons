@@ -40,6 +40,7 @@ function save() {
 }
 function updateDraftNote() {
   if (!current) return;
+  $("saved-draft-info").hidden = !(current.lang === "js" && !current.local && state.drafts[current.id] !== undefined && state.drafts[current.id] !== current.starter);
   $("draft-note").textContent = current.lang === "js" && !current.local
     ? (canSave ? "草稿保存在此浏览器；可下载代码或导出备份。Ctrl / ⌘ + Enter 运行，加 Shift 检查。"
       : "草稿暂时无法保存，关闭前请下载代码或导出备份。")
@@ -116,8 +117,10 @@ function select(id, historyMode = "push", locate = true) {
   const interactive = current.lang === "js" && !current.local;
   $("code").readOnly = !interactive;
   const draft = state.drafts[current.id];
-  $("code").value = interactive ? (draft === current.legacyStarter ? current.starter : draft ?? current.starter) : current.starter;
+  $("code").value = interactive ? (draft ?? current.starter) : current.starter;
   $("code").scrollTop = 0;
+  $("saved-draft-info").open = false;
+  $("starter-preview").textContent = current.starter;
   $("editor-label").textContent = interactive ? "你的综合大练习代码" : "综合题起点预览 · 请编辑本地文件";
   $("js-controls").hidden = !interactive;
   $("local-controls").hidden = interactive;
@@ -127,7 +130,7 @@ function select(id, historyMode = "push", locate = true) {
   for (const key of ["hint", "concept", "extension"]) $(key).textContent = current[key];
   for (const details of document.querySelectorAll(".guide-panel details")) details.open = false;
   $("requirements-panel").hidden = false;
-  $("final-examples").textContent = current.examples ? "试一试这些输入：" + current.examples : "完成后按以上要求换不同输入验证，再点击验收。";
+  $("final-examples").textContent = current.examples ? current.examples : "完成后按以上要求换不同输入验证，再点击验收。";
   $("requirements").replaceChildren(...(current.requirements ?? []).map(text => {
     const item = document.createElement("li"); item.textContent = text; return item;
   }));

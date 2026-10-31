@@ -166,11 +166,11 @@ function errorText(requestId,latestId) { return requestId===latestId ? "请求�
 </details>
 <!-- foundations:end -->
 
-## 综合大练习：修复搜索结果被旧请求覆盖
+## 综合大练习：让旧搜索结果不再覆盖新结果
 
 **先搜 J，再搜 JS；即使 J 最后返回，页面仍保留 JS 的结果。**
 
-### 完成要求
+### 题目要求
 
 - 每次调用 search(query) 立即 render({status:"loading",query})。
 - 仅最后发起的请求允许渲染终态；旧的成功和失败都应被忽略。
@@ -178,6 +178,10 @@ function errorText(requestId,latestId) { return requestId===latestId ? "请求�
 - fetcher 同步抛错和 Promise 拒绝都要接住；search 的正常失败不向调用方继续抛出。
 - 相同关键词的多次请求也要区分；不同工厂实例的序号独立。
 - 本关忽略旧响应，不要求取消底层网络请求；render 视为不会抛错。
+
+### 输入与预期结果
+
+先显示 JS 新结果；即使 J 旧结果后来才到，也不能再显示 J 旧结果。
 
 ### 在哪里写、怎么验收
 

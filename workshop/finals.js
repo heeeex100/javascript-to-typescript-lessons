@@ -30,7 +30,7 @@ for (const [id, assignment] of Object.entries({
       "打印输入、转换值、总时长和 valid。"
     ],
     "starter": "const input = \"20\";\nconst bonus = 5;\n// TODO：补全转换、加法和有效数字判断。\nconst numeric = input;\nconst total = input + bonus;\nconst valid = true;\nconsole.log(numeric, total, valid);\n",
-    "checks": "check(typeof numeric === \"number\" && Object.is(numeric,Number(input)),\"numeric 应是 input 转换得到的数字\");\ncheck(Object.is(total,Number(input)+bonus),\"总时长要做数字相加\");\ncheck(valid === Number.isFinite(total),\"valid 要反映实际结果是否为有限数字\");",
+    "checks": "check(typeof input === \"string\",\"input 应保留用户输入的文字，不能直接改成数字\");\ncheck(typeof numeric === \"number\" && Object.is(numeric,Number(input)),\"numeric 应是 input 转换得到的数字\");\ncheck(typeof total === \"number\" && Object.is(total,Number(input)+bonus),\"总时长要做数字相加\");\ncheck(typeof valid === \"boolean\" && valid === Number.isFinite(total),\"valid 要反映实际结果是否为有限数字\");",
     "file": "practice/finals/01.js",
     "answerFile": "answers/finals/01.js",
     "examples": "input=\"20\"、bonus=5 → 20、25、true；input=\"abc\" → NaN、NaN、false。空文本会转为 0，空文本的业务校验留到后续练习。",
@@ -393,3 +393,161 @@ for (const lab of globalThis.learningLabs) {
   lab.finalTitle = lab.title.replace(/^综合大练习：/, "");
   Object.assign(lab, { title, navTitle, learningGoal });
 }
+
+// 题面只描述目标、结果与约束；实现方法放在可展开的提示中。
+const taskGuides = {
+  "00": {
+    "finalTitle": "写一句自己的学习计划",
+    "examples": "例如：小林今天学 JavaScript，计划 15 分钟。换名字后，这句话也应跟着变。",
+    "goal": "填写自己的名字、主题和学习分钟数，让程序把它们显示在同一句话里。",
+    "requirements": [
+      "填写名字 learner、学习主题 topic 和分钟数 minutes（大于 0）。",
+      "message 是包含这三项的一句话。改变名字、主题或时长后，输出也要跟着变。"
+    ]
+  },
+  "01": {
+    "finalTitle": "计算学习总时长",
+    "examples": "input=\"20\"、bonus=5 → numeric=20、total=25、valid=true。input=\"abc\"、bonus=5 → numeric=NaN、total=NaN、valid=false。",
+    "goal": "用户填了学习分钟数，还会获得额外分钟数。请算出总时长，并判断输入能否用于计算。",
+    "requirements": [
+      "input 是用户输入的文字分钟数，bonus 是额外增加的分钟数；保留 input 为文字。",
+      "程序要给出三个结果：numeric 是输入对应的数字，total 是加上 bonus 后的总分钟数，valid 表示总分钟数是否为有限数字。",
+      "无法转换的输入也要处理：numeric 和 total 为 NaN，valid 为 false。打印这三个结果。"
+    ],
+    "steps": [
+      "把 input 对应的数字保存为 numeric。",
+      "将加上奖励后的总数保存为 total。",
+      "判断 total 是否为有限数字，将判断结果保存为 valid。"
+    ],
+    "hint": "这里 Number(...) 负责转换；Number.isFinite(...) 只负责判断结果能不能用，不会帮你转换。",
+    "concept": "带引号的 \"20\" 是文字。Number(\"20\") 得到数字 20，20 + 5 得到 25。Number(\"abc\") 得到 NaN，表示转不成数字；Number.isFinite(NaN) 是 false。",
+    "extension": "把 bonus 改为 10，再试 input=\"30\"，预测结果后运行。"
+  },
+  "02": {
+    "finalTitle": "统计哪些学习记录达到 25 分钟",
+    "examples": "[10,25,40,15] 中，25 和 40 达标：总数 65，达标 2 次，未达标 2 次，平均 32.5 分钟。",
+    "goal": "统计学习记录中达到时长要求的记录，给出总时长、次数和平均时长。",
+    "requirements": [
+      "统计 sessions 中不少于 minimum 分钟的记录：total 为达标总时长，count 为达标次数，skipped 为未达标次数。",
+      "average 为达标记录的平均时长；没有达标记录时为 0。不修改原记录。"
+    ]
+  },
+  "03": {
+    "finalTitle": "做一个能记住订单次数的结账函数",
+    "examples": "const pay = createCheckout(); pay(2) 应得到 {total:24,orders:1}，再调用 pay(1) 应得到 {total:12,orders:2}。",
+    "goal": "同一个结账工具每用一次，算出这笔金额，并记住这是第几笔订单。",
+    "requirements": [
+      "createCheckout(unitPrice=12,adjust) 创建一个结账工具，返回的函数接收购买数量。adjust 默认不改变金额。",
+      "每笔金额是数量乘单价、经 adjust 调整后的结果，最低为 0；每笔只调整一次，创建工具时不调整。输入均为有效数字。",
+      "每次结账返回 {total,orders}，orders 从 1 累计，数量为 0 也算一笔。不同工具的次数互不影响。"
+    ]
+  },
+  "04": {
+    "finalTitle": "改一个任务的标题，再统计列表",
+    "examples": "把 id=1 的“读 JS”改成“写 JS”：新列表显示新标题，before 里仍是“读 JS”。",
+    "goal": "改标题时留下旧数据，再从新列表中算出未完成标题和任务数量。",
+    "requirements": [
+      "renameTasks(tasks,id,title) 返回改名后的新列表；仅替换匹配的任务对象，其他对象保留。找不到编号或空列表也返回新数组。",
+      "taskSummary(tasks) 返回未完成标题 pendingTitles、完成数 doneCount 和总数 totalCount，标题保持原顺序。空列表返回空标题数组与两个 0。",
+      "对改名后的列表生成摘要，原列表与原任务对象保持不变。"
+    ]
+  },
+  "05": {
+    "finalTitle": "把任务存成文字，再读回来",
+    "examples": "保存 [{title:\"学习\",done:false}] 再读取，应还原同一份内容；读取 \"oops\" 应得到 []。",
+    "goal": "把任务数组保存为 JSON 文字，再读回数组；文字损坏时用空数组代替。",
+    "requirements": [
+      "storage.js 导出 saveTasks(tasks) 和 loadTasks(text)，main.js 导入并调用。",
+      "保存得到 JSON 文字，读取合法数组得到原内容。坏文字或非数组内容统一返回 []，不修改原数组。这关不检查任务字段。",
+      "在 main.js 展示正常存档与损坏存档的读取结果，并用断点观察一次读取失败。"
+    ]
+  },
+  "06": {
+    "finalTitle": "等待任务加载，并报告成功或失败",
+    "examples": "加载得到 [\"写代码\",\"喝水\"] 时，返回 {status:\"success\",items:[\"写代码\",\"喝水\"],count:2}。",
+    "goal": "等加载函数给出任务数组，再告诉调用者有几项；加载失败时给出错误信息。",
+    "requirements": [
+      "loadTaskReport(loader) 使用传入的加载函数取得数据。成功得到数组时返回 {status:\"success\",items,count}，空数组也算成功。",
+      "加载抛错、等待失败或结果不是数组时，返回 {status:\"error\",message:\"加载失败\"}，不向调用者继续抛错。"
+    ]
+  },
+  "07": {
+    "finalTitle": "让任务页面能添加、完成和删除任务",
+    "examples": "输入“读书”并添加：剩余数加 1；完成它：剩余数减 1；删除它：列表中不再显示。",
+    "requirements": [
+      "输入非空标题可以添加任务；空白标题不能添加，要显示提示。",
+      "任务可以完成或删除，每次操作后显示正确的未完成数量。",
+      "用户输入作为文字显示；刷新页面恢复初始数据，不要求保存。"
+    ]
+  },
+  "08": {
+    "finalTitle": "用 TypeScript 写分钟数计算函数",
+    "examples": "planMinutes(\"20\",5) 返回 25；planMinutes(\"abc\",5) 抛出 Error，表示输入不能计算。",
+    "goal": "先把文字分钟数转为数字，再加奖励分钟；不能计算的输入要报错。",
+    "requirements": [
+      "planMinutes(text:string,bonus:number):number 返回总分钟数。文字分钟数和 bonus 都必须是有限、非负数字，文字不能是空白。",
+      "合法输入返回总数，非法输入抛出 Error。保留类型约束，不用 any 或类型断言绕过检查。"
+    ]
+  },
+  "09": {
+    "finalTitle": "把任务对象变成一句话",
+    "examples": "{id:1,title:\" 写练习 \"} 应变成 \"1 · 写练习：无备注\"。",
+    "goal": "把任务编号、标题、备注拼成一句可显示的文字，没有备注就显示“无备注”。",
+    "requirements": [
+      "formatTask(task) 返回“编号 · 标题：备注”，标题和备注去掉两侧空格。",
+      "备注缺失或为空白时显示“无备注”，不修改原对象。保留 Task 的只读 id、标题及可选备注类型。"
+    ]
+  },
+  "10": {
+    "finalTitle": "检查标题，再显示检查结果",
+    "examples": "\" 学习 \" 经过两个函数后显示 \"已接收：学习\"；空文字应显示 \"失败：\" 加上你写的原因。",
+    "goal": "把输入先检查一遍，再按检查结果显示一句成功或失败的信息。",
+    "requirements": [
+      "parseTitle(input:unknown) 接受去空格后非空的字符串，返回 {ok:true,value:标题}；其他输入返回 {ok:false,error:非空原因}。",
+      "describe(result) 成功时返回“已接收：标题”，失败时返回“失败：原因”。"
+    ]
+  },
+  "11": {
+    "finalTitle": "写两个能用于不同数组的查找函数",
+    "examples": "first([3,4]) 返回 3；findById([{id:1,title:\"A\"}],1) 返回带 title 的原对象。",
+    "goal": "让同一份查找代码既能查任务，也能查用户，并保留找到的对象字段。",
+    "requirements": [
+      "first(items) 返回第一项，findById(items,id) 返回编号匹配的对象；没有结果时返回 undefined。",
+      "两个函数都保留输入元素的具体类型，不修改数组或对象；findById 接受的对象至少有数字 id。"
+    ]
+  },
+  "12": {
+    "finalTitle": "删除任务或改标题，同时保留旧列表",
+    "examples": "原列表为 id=1 标题 A：重命名为 B 后，新列表显示 B，原列表仍显示 A；编号不存在时返回 ok:false。",
+    "goal": "实现删除与改名两个操作：成功给出新列表，失败说明原因。",
+    "requirements": [
+      "removeTask(tasks,id) 删除任务，renameTask(tasks,id,title) 修改标题。成功返回 {ok:true,value:新列表}。",
+      "编号不存在，或新标题去空格后为空时，返回 {ok:false,error:原因}。原数组与原任务对象保持不变。"
+    ]
+  },
+  "13": {
+    "finalTitle": "给任务列表加搜索、排序和分页",
+    "examples": "用起点里的数据搜索 js、每页 1 条：第 1 页应是 id=2，第 2 页是 id=1；两页的 total 都是 2。"
+  },
+  "14": {
+    "finalTitle": "让撤销真的回到上一个版本",
+    "examples": "草稿 → 版本 A → 版本 B：undo() 回到 A，再 undo() 回到草稿，redo() 回到 A。"
+  },
+  "15": {
+    "finalTitle": "让旧搜索结果不再覆盖新结果",
+    "examples": "先显示 JS 新结果；即使 J 旧结果后来才到，也不能再显示 J 旧结果。"
+  },
+  "16": {
+    "finalTitle": "限制同时运行的任务数量",
+    "examples": "limit=2 时，“同时运行”最多是 2；全部完成后，每项结果仍放在它原来的下标。"
+  },
+  "17": {
+    "finalTitle": "检查导入的任务数据，并列出错误位置",
+    "examples": "[{id:1,title:\" A \",done:false}] 应成功并把标题变成 A；title 为空时，应在 issues 中指出 $[0].title。"
+  },
+  "18": {
+    "finalTitle": "让通知器能订阅、发送和取消通知",
+    "examples": "先 on(\"saved\",回调)，再 emit(\"saved\",{id:1})：回调收到 {id:1}；调用取消函数后，再发送不触发这个回调。"
+  }
+};
+for (const lab of globalThis.learningLabs) Object.assign(lab, taskGuides[lab.id]);

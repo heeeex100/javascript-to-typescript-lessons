@@ -169,11 +169,11 @@ function issuePath(index: number, field: string): string { return `[${index}].${
 </details>
 <!-- foundations:end -->
 
-## 综合大练习：导入脏数据时一次列出所有错误
+## 综合大练习：检查导入的任务数据，并列出错误位置
 
 **把外部 unknown 校验成 Task[]；同时告诉用户每个错误在哪个字段。**
 
-### 完成要求
+### 题目要求
 
 - 输入是 unknown，函数负责校验已解析的数据；此关不做 JSON 文本解析。
 - 顶层必须是数组，错误路径 $；行必须是非 null、非数组对象，错误路径 $[i]。
@@ -182,6 +182,10 @@ function issuePath(index: number, field: string): string { return `[${index}].${
 - 收集全部问题，顺序为行顺序、同行 id → title → done。每个 Issue 包含 path 与非空 message。
 - 只要有错就整体失败，不返回部分成功数据；成功返回新 Task 对象，剔除未知字段，不改输入。
 - 不要求额外的属性描述符或原型安全处理；用普通 JSON 数据即可。
+
+### 输入与预期结果
+
+[{id:1,title:" A ",done:false}] 应成功并把标题变成 A；title 为空时，应在 issues 中指出 $[0].title。
 
 ### 在哪里写、怎么验收
 

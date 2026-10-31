@@ -32,11 +32,9 @@ text 存的是带引号的 "6"。`Number(text)` 这一步才真正把文字读�
 最后的 `//` 表示这一行是注释，目前不执行。取消注释后，twice(text) 把文字传到要求数字的位置，编译器就会指出错误。
 
 
-**冒号是要求，等号是赋值**
+记住这两个不同的动作就够了：`: number` 要求传入数字，`Number(text)` 把文字转换成数字。
 
-`const count: number = 3` 中，count 是变量名，冒号后 number 是类型要求，等号后 3 才是实际保存的值。生成 JS 后相当于 `const count = 3`，类型写法不参与这次赋值。这里的类型注解 number 不会创建同名变量，不能因此直接用 console.log(number) 打印它；作为类型时也不要随意改成大写 Number，后者描述的是包装对象类型，普通数字使用小写 number。
-
-很多注解可以省略：`const count = 3` 已让 TS 推断出数字类型，函数 `function double(value: number) { return value * 2; }` 的返回类型也能推断。注解不是越多越安全，明确参数要求和需要约束的结果即可。相反，JS 文件里直接写 `value: number` 会是语法错误，这套类型语法属于 TS。
+`const count = 3` 不必再写 `: number`，TS 能从 3 看出类型。先把函数参数写清楚，不用给每个变量重复加类型。
 
 ##### 就地小练习 08-01 · 先读懂参数类型
 
@@ -169,19 +167,18 @@ function read(text: string): number { return Number(text); }
 </details>
 <!-- foundations:end -->
 
-## 综合大练习：有类型约束的分钟输入工具
+## 综合大练习：用 TypeScript 写分钟数计算函数
 
-**将文字校验和数字计算接到 TS 参数约定上，返回真实数字。**
+**先把文字分钟数转为数字，再加奖励分钟；不能计算的输入要报错。**
 
-### 完成要求
+### 题目要求
 
-- 实现 planMinutes(text:string, bonus:number):number，不使用 any 或断言绕过检查。
-- text 必须是非空、可转成有限非负数字的文字。bonus 为有限非负数字。
-- 合法时返回转换后的分钟数加 bonus；非法输入抛出 Error。
+- planMinutes(text:string,bonus:number):number 返回总分钟数。文字分钟数和 bonus 都必须是有限、非负数字，文字不能是空白。
+- 合法输入返回总数，非法输入抛出 Error。保留类型约束，不用 any 或类型断言绕过检查。
 
 ### 输入与预期结果
 
-("20",5) → 25；("0",0) → 0；空文本、abc、负数分钟或负数奖励 → 抛错。
+planMinutes("20",5) 返回 25；planMinutes("abc",5) 抛出 Error，表示输入不能计算。
 
 ### 在哪里写、怎么验收
 

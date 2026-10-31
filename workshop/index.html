@@ -78,8 +78,9 @@
     <button id="review-lesson" type="button">← 回看本关讲解</button>
     <div class="workspace">
       <section class="guide-panel" aria-label="综合大练习要求">
-        <h2>你要完成的完整任务</h2>
+        <h2>题目要求</h2>
         <div id="requirements-panel"><ul id="requirements"></ul></div>
+        <h3>输入与预期结果</h3>
         <p id="final-examples"></p>
         <details><summary>需要时，再看解题思路</summary><ol id="steps"></ol></details>
         <details><summary>卡住了？看一个提示</summary><p id="hint"></p></details>
@@ -91,6 +92,7 @@
         <div class="panel-heading"><label id="editor-label" for="code">你的实验代码</label><span id="language"></span></div>
         <div class="code-editor"><pre id="line-numbers" aria-hidden="true">1</pre><textarea id="code" maxlength="100000" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="draft-note"></textarea></div>
         <p id="draft-note" class="quiet"></p>
+        <details id="saved-draft-info" hidden><summary>当前显示已保存草稿 · 查看本题起点</summary><p>草稿可能与当前题目的起始代码不同。你可以继续修改；需要重新开始时，使用“加载大练习起点”。</p><pre id="starter-preview"></pre></details>
         <div id="js-controls" class="controls">
           <button id="run">运行代码</button>
           <button id="check" class="primary">验收综合大练习</button>

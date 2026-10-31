@@ -161,11 +161,11 @@ function result(items) { const page=items.slice(0,2); return {items:page,total:i
 </details>
 <!-- foundations:end -->
 
-## 综合大练习：做一个能搜索、排序、翻页的任务列表
+## 综合大练习：给任务列表加搜索、排序和分页
 
 **搜索 JS，只看未完成任务，按优先级排列，再取指定页；原列表不变。**
 
-### 完成要求
+### 题目要求
 
 - 数据已满足 {id,title,done,priority} 结构；priority 越大越靠前。
 - 关键词 trim 后忽略大小写，按标题包含匹配；空关键词匹配全部。
@@ -173,6 +173,10 @@ function result(items) { const page=items.slice(0,2); return {items:page,total:i
 - page 从 1 开始；page、pageSize 必须为正安全整数，否则抛错。
 - 返回 {total,items}；total 是筛选后分页前的数量。超出末页返回空 items。
 - 不得修改输入数组、对象或 options。
+
+### 输入与预期结果
+
+用起点里的数据搜索 js、每页 1 条：第 1 页应是 id=2，第 2 页是 id=1；两页的 total 都是 2。
 
 ### 在哪里写、怎么验收
 
